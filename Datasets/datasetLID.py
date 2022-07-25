@@ -21,6 +21,7 @@ class LIDDataset(Dataset):
     CSVPath,
     hparams,
     is_train=True,
+    cluster = "across"
     ):
         self.CSVPath = CSVPath
         self.data = pd.read_csv(CSVPath).values
@@ -41,6 +42,7 @@ class LIDDataset(Dataset):
             'zho-cmn': torch.eye(14)[12], 
             'zho-nan': torch.eye(14)[13]
             }
+        self.lang2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
         self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
         self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='random', crop_position='random')
         self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='left', crop_position='center')
@@ -66,8 +68,48 @@ class LIDDataset(Dataset):
         # upsample 8k -> 16k
         wav = self.upsample(wav).unsqueeze(dim=0) 
 
+        # Mixup
+        mixup_wav = torch.zeros(1)
+        mixup_language = torch.zeros(14)
+
+        ######## Applying Mixup #########
+        probability = 0.25
+        if self.is_train and random.random() <= probability:
+            if self.cluster == "across":
+                while True:
+                    mixup_idx = random.randint(0, self.data.shape[0]-1)
+                    mixup_file = self.data[mixup_idx][0]
+                    mixup_language = self.classes[self.data[mixup_idx][1]]
+
+                    if self.lang2cluster[torch.argmax(language).item()] != self.lang2cluster[torch.argmax(mixup_language).item()]:
+                        break
+            elif self.cluster == "within":
+                while True:
+                    mixup_idx = random.randint(0, self.data.shape[0]-1)
+                    mixup_file = self.data[mixup_idx][0]
+                    mixup_language = self.classes[self.data[mixup_idx][1]]
+
+                    if self.lang2cluster[torch.argmax(language)] == self.lang2cluster[torch.argmax(mixup_language)]:
+                        break
+            else:
+                mixup_idx = random.randint(0, self.data.shape[0]-1)
+                mixup_file = self.data[mixup_idx][0]
+                mixup_language = self.classes[self.data[mixup_idx][1]]
+        
+
+            mixup_wav, _ = librosa.load(mixup_file, sr=8000)
+            mixup_wav = torch.from_numpy(mixup_wav)
+
+            mixup_wav = self.upsample(mixup_wav).unsqueeze(dim=0)
+
+            mixup_wav = self.train_transform(mixup_wav)
+        ######## Done applying Mixup #########
+
+
+
+
         if(self.is_train):
             wav = self.train_transform(wav)
         else:
             wav = self.test_transform(wav)
-        return wav, torch.FloatTensor([wav_duration]), language
+        return wav, mixup_wav, language, mixup_language, torch.FloatTensor([wav_duration]), file
