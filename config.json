@@ -1,0 +1,26 @@
+{
+    "model_name": "wavelm_lid",
+    "dataDir": {
+        "dir": "/root/LRE2017Dataset/LRE2017",
+        "train_path": "$dir/lre17-segmented-train-set-5-hour-each-set-2.csv",
+        "test_path": "$dir/lre17-test-set-less-than-60.csv",
+        "val_path": "$dir/lre17-val-set-less-than-60.csv",
+        "results_path": "/root/Langid/NTUxSkit/results/results-xlsr-latent-wihtin-5hr-set-3_2.csv",
+        "model_checkpoint": "/root/Langid/NTUxSkit/checkpoints"
+    },
+    "model_parameters": {
+        "batch_size": "1",
+        "epochs": "50",
+        "lr": "1e-5",
+        "model_type": "UpstreamTransformer",
+        "upstream_model": "wav2vec2",
+        "_comment": "upstream model to be loaded from s3prl. Some of the upstream models are: wav2vec2, hubert, TERA, mockingjay",
+        "feature_dim": "768", 
+        "mixup_type": "static",
+        "cluster": "across"
+    },
+    "gpu": "1",
+    "run_name": "wav2vec-set-2",
+    "n_workers": "8" 
+}
+
