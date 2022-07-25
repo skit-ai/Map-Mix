@@ -20,7 +20,7 @@ torch.manual_seed(SEED)
 os.environ['WANDB_MODE'] = 'online'
 
 
-from Datasets.datasetLID import LIDDataset, collate_fn
+from Datasets.datasetLID import LIDDataset, collate_fn, collate_fn_mixup
 from Models.lightning import LightningModel
 
 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         batch_size=hparams.batch_size, 
         shuffle=True, 
         num_workers=hparams.n_workers,
-        collate_fn = collate_fn,
+        collate_fn = collate_fn_mixup,
     )
     ## Validation Dataset
     valid_set = LIDDataset(

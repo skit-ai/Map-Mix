@@ -1,4 +1,5 @@
 import pandas as pd
+import random
 
 import torch
 from torch.utils.data import Dataset
@@ -9,12 +10,28 @@ import torchaudio
 import wavencoder
 import librosa
 
-def collate_fn(batch):
-    (seq, wav_duration, label) = zip(*batch)
+def collate_fn_mixup(batch):
+    (seq, mixup_seq, label, mixup_label, wav_duration, filename) = zip(*batch)
+    
     seql = [x.reshape(-1,) for x in seq]
+    mixup_seql = [x.reshape(-1,) for x in mixup_seq]
+
     seq_length = [x.shape[0] for x in seql]
+    mixup_seq_length = [x.shape[0] for x in mixup_seql]
+    
     data = rnn_utils.pad_sequence(seql, batch_first=True, padding_value=0)
-    return data, seq_length, label
+    mixup_data = rnn_utils.pad_sequence(mixup_seql, batch_first=True, padding_value=0)
+    return data, mixup_data, label, mixup_label, seq_length, mixup_seq_length, filename
+
+def collate_fn(batch):
+    (seq, label, wav_duration) = zip(*batch)
+    
+    seql = [x.reshape(-1,) for x in seq]
+
+    seq_length = [x.shape[0] for x in seql]
+    
+    data = rnn_utils.pad_sequence(seql, batch_first=True, padding_value=0)
+    return data, label, seq_length
 
 class LIDDataset(Dataset):
     def __init__(self,
@@ -74,42 +91,43 @@ class LIDDataset(Dataset):
 
         ######## Applying Mixup #########
         probability = 0.25
-        if self.is_train and random.random() <= probability:
-            if self.cluster == "across":
-                while True:
+        if self.is_train:
+            if random.random() <= probability:
+                if self.cluster == "across":
+                    while True:
+                        mixup_idx = random.randint(0, self.data.shape[0]-1)
+                        mixup_file = self.data[mixup_idx][0]
+                        mixup_language = self.classes[self.data[mixup_idx][1]]
+
+                        if self.lang2cluster[torch.argmax(language).item()] != self.lang2cluster[torch.argmax(mixup_language).item()]:
+                            break
+                elif self.cluster == "within":
+                    while True:
+                        mixup_idx = random.randint(0, self.data.shape[0]-1)
+                        mixup_file = self.data[mixup_idx][0]
+                        mixup_language = self.classes[self.data[mixup_idx][1]]
+
+                        if self.lang2cluster[torch.argmax(language)] == self.lang2cluster[torch.argmax(mixup_language)]:
+                            break
+                else:
                     mixup_idx = random.randint(0, self.data.shape[0]-1)
                     mixup_file = self.data[mixup_idx][0]
                     mixup_language = self.classes[self.data[mixup_idx][1]]
+            
 
-                    if self.lang2cluster[torch.argmax(language).item()] != self.lang2cluster[torch.argmax(mixup_language).item()]:
-                        break
-            elif self.cluster == "within":
-                while True:
-                    mixup_idx = random.randint(0, self.data.shape[0]-1)
-                    mixup_file = self.data[mixup_idx][0]
-                    mixup_language = self.classes[self.data[mixup_idx][1]]
+                mixup_wav, _ = librosa.load(mixup_file, sr=8000)
+                mixup_wav = torch.from_numpy(mixup_wav)
 
-                    if self.lang2cluster[torch.argmax(language)] == self.lang2cluster[torch.argmax(mixup_language)]:
-                        break
-            else:
-                mixup_idx = random.randint(0, self.data.shape[0]-1)
-                mixup_file = self.data[mixup_idx][0]
-                mixup_language = self.classes[self.data[mixup_idx][1]]
-        
+                mixup_wav = self.upsample(mixup_wav).unsqueeze(dim=0)
 
-            mixup_wav, _ = librosa.load(mixup_file, sr=8000)
-            mixup_wav = torch.from_numpy(mixup_wav)
-
-            mixup_wav = self.upsample(mixup_wav).unsqueeze(dim=0)
-
-            mixup_wav = self.train_transform(mixup_wav)
+                mixup_wav = self.train_transform(mixup_wav)
         ######## Done applying Mixup #########
-
-
-
-
-        if(self.is_train):
             wav = self.train_transform(wav)
+            return wav, mixup_wav, language, mixup_language, torch.FloatTensor([wav_duration]), file
         else:
             wav = self.test_transform(wav)
-        return wav, mixup_wav, language, mixup_language, torch.FloatTensor([wav_duration]), file
+            return wav, language, torch.FloatTensor([wav_duration])
+
+
+
+        
