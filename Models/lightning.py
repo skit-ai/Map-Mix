@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import pytorch_lightning as pl
-from torchmetrics import Accuracy
-from torchmetrics import F1Score
+# from torchmetrics import Accuracy
+# from torchmetrics import F1Score
 # from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
 from Models.model import UpstreamTransformer, UpstreamTransformerXLSR
@@ -23,8 +23,8 @@ class LightningModel(pl.LightningModule):
 
         self.model = self.models[HPARAMS['model_type']](upstream_model=HPARAMS['upstream_model'], feature_dim=HPARAMS['feature_dim'], unfreeze_last_conv_layers=HPARAMS['unfreeze_last_conv_layers'])
         self.classification_criterion = CrossEntropyLoss()
-        self.accuracy_metric = Accuracy()
-        self.f1_metric = F1Score()
+        # self.accuracy_metric = Accuracy()
+        # self.f1_metric = F1Score()
         self.lr = HPARAMS['lr']
         self.mixup_type = HPARAMS['mixup_type']
 
@@ -56,12 +56,12 @@ class LightningModel(pl.LightningModule):
         winners = y_hat_l.argmax(dim=1)
         corrects = (winners == y_l.argmax(dim=1))
         language_acc = corrects.sum().float() / float( y_hat_l.size(0) )
-        train_step_acc = self.accuracy_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
-        train_step_f1 = self.f1_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
+        # train_step_acc = self.accuracy_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
+        # train_step_f1 = self.f1_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
         loss = language_loss
 
-        self.log("train/f1", train_step_acc, on_step=False, on_epoch=True)
-        self.log("train/acc", train_step_f1, on_step=False, on_epoch=True)
+        # self.log("train/f1", train_step_acc, on_step=False, on_epoch=True)
+        # self.log("train/acc", train_step_f1, on_step=False, on_epoch=True)
 
         return {'loss':loss, 
                 'language_acc':language_acc,
@@ -75,7 +75,7 @@ class LightningModel(pl.LightningModule):
         language_acc = torch.tensor([x['language_acc'] for x in outputs]).mean()
 
         self.log('train/loss' , loss, on_step=False, on_epoch=True, prog_bar=True)
-        # self.log('train/acc',language_acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log('train/acc',language_acc, on_step=False, on_epoch=True, prog_bar=True)
 
     def validation_step(self, batch, batch_idx):
         x, x_len, y_l = batch
@@ -88,11 +88,11 @@ class LightningModel(pl.LightningModule):
         corrects = (winners == y_l.argmax(dim=1))
         language_acc = corrects.sum().float() / float( y_hat_l.size(0) )
 
-        val_step_acc = self.accuracy_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
-        val_step_f1 = self.f1_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
+        # val_step_acc = self.accuracy_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
+        # val_step_f1 = self.f1_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
 
-        self.log("val/f1", val_step_acc, on_step=False, on_epoch=True)
-        self.log("val/acc", val_step_f1, on_step=False, on_epoch=True)
+        # self.log("val/f1", val_step_acc, on_step=False, on_epoch=True)
+        # self.log("val/acc", val_step_f1, on_step=False, on_epoch=True)
 
         loss = language_loss
 
@@ -105,7 +105,7 @@ class LightningModel(pl.LightningModule):
         language_acc = torch.tensor([x['val_language_acc'] for x in outputs]).mean()
         
         self.log('val/loss' , val_loss, on_step=False, on_epoch=True, prog_bar=True)
-        # self.log('val/acc',language_acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log('val/acc',language_acc, on_step=False, on_epoch=True, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         x, x_len, y_l  = batch

@@ -5,8 +5,8 @@
         "train_path": "$dir/lre17-segmented-train-set-5-hour-each-set-2.csv",
         "test_path": "$dir/lre17-test-set-less-than-60.csv",
         "val_path": "$dir/lre17-val-set-less-than-60.csv",
-        "results_path": "/root/Langid/NTUxSkit/results/results-xlsr-latent-wihtin-5hr-set-3_2.csv",
-        "model_checkpoint": "/root/Langid/NTUxSkit/checkpoints"
+        "results_path": "/root/Langid/NTUxSkit/results/results-xlsr-latent-wihtin-5hr-set-2.csv",
+        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/epoch=1-step=49553.ckpt"
     },
     "model_parameters": {
         "batch_size": "1",
