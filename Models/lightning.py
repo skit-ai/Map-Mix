@@ -101,6 +101,10 @@ class LightningModel(pl.LightningModule):
         x, mixup_x, y_l, mixup_y_l, x_len, mixup_x_len, filenames = batch
         y_l = torch.stack(y_l)
         mixup_y_l = torch.stack(mixup_y_l)
+        
+        apply_mixup = False
+        lam = -1
+
         if (not torch.equal(mixup_y_l.cpu(), torch.zeros(mixup_y_l.shape))):
             apply_mixup = True
             alpha = 1
