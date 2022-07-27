@@ -8,16 +8,35 @@ from torchmetrics import Accuracy
 from torchmetrics import F1Score
 # from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
-from Models.model import UpstreamTransformer, UpstreamTransformerXLSR
+from Models.model import UpstreamTransformerXLSR
 from utils import CrossEntropyLoss
-
+from transformers import Wav2Vec2Processor, Wav2Vec2Model
 
 class LightningModel(pl.LightningModule):
     def __init__(self, HPARAMS):
         super().__init__()
         # HPARAMS
         self.save_hyperparameters()
-        self.model = UpstreamTransformerXLSR(upstream_model=HPARAMS['upstream_model'], feature_dim=HPARAMS['feature_dim'], unfreeze_last_conv_layers=HPARAMS['unfreeze_last_conv_layers'])
+        # self.model = UpstreamTransformerXLSR(upstream_model=HPARAMS['upstream_model'], feature_dim=HPARAMS['feature_dim'], unfreeze_last_conv_layers=HPARAMS['unfreeze_last_conv_layers'])
+
+        self.processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
+        self.encoder = Wav2Vec2Model.from_pretrained("facebook/wav2vec2-xls-r-300m")
+
+        for param in self.encoder.parameters():
+            param.requires_grad = False
+        
+        for param in self.encoder.encoder.layers.parameters():
+            param.requires_grad = True
+
+        if HPARAMS['unfreeze_last_conv_layers']:
+            for param in self.encoder.feature_extractor.conv_layers[5:].parameters():
+                param.requires_grad = True
+        
+        self.language_classifier = nn.Sequential(
+            nn.Linear(HPARAMS['feature_dim'], 14),
+        )
+        # self.model = XLSRLangID(self.processor, self.encoder, self.language_classifier)
+
         self.classification_criterion = CrossEntropyLoss()
         self.accuracy_metric = Accuracy()
         self.f1_metric = F1Score()
@@ -32,8 +51,45 @@ class LightningModel(pl.LightningModule):
     def count_trainable_parameters(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
+    # def forward(self, x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, mixup_type):
+    #     return self.model(x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, mixup_type)
+
+    def simple_forward(self, x, x_len):
+        # x = [torch.narrow(wav,0,0,x_len[i]) for (i,wav) in enumerate(x.squeeze(1))]
+        x = self.encoder(x).last_hidden_state
+        x = torch.mean(x, dim=1)
+        language = self.language_classifier(x)
+        return language
+
+    def mixup_forward(self, x, mixup_x, x_len, mixup_x_len, lam):
+        # x = [torch.narrow(wav,0,0,x_len[i]) for (i,wav) in enumerate(x.squeeze(1))]
+        # mixup_x = [torch.narrow(mixup_wav,0,0,mixup_x_len[i]) for (i,mixup_wav) in enumerate(mixup_x.squeeze(1))]
+        
+        # print(x[0].shape, mixup_x[0].shape)
+        x = self.encoder(x).last_hidden_state
+        mixup_x = self.encoder(mixup_x).last_hidden_state
+        
+        x = torch.mean(x, dim=1)
+        mixup_x = torch.mean(mixup_x, dim=1)
+        
+        x = lam*x + (1-lam)*mixup_x
+
+        language = self.language_classifier(x)
+        return language
+
     def forward(self, x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, mixup_type):
-        return self.model(x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, mixup_type)
+        x = self.processor(x, sampling_rate=16000, return_tensors="pt")["input_values"].squeeze(0).to(self.device)
+        mixup_x = self.processor(mixup_x, sampling_rate=16000, return_tensors="pt")["input_values"].squeeze(0).to(self.device)
+        if(apply_mixup):
+            if mixup_type == 'latent-mixup-last':
+                return self.mixup_forward(x, mixup_x, x_len, mixup_x_len, lam)
+            elif mixup_type == 'static':
+                x = lam*x + (1-lam)*mixup_x
+                return self.simple_forward(x, x_len)
+            else:
+                raise Exception("Wrong mixup type. Supported types - 1. latent-mixup-last 2. static")
+        else:
+            return self.simple_forward(x, x_len)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -84,7 +140,7 @@ class LightningModel(pl.LightningModule):
         x, x_len, y_l = batch
         y_l = torch.stack(y_l)
 
-        y_hat_l = self(x, x_len)
+        y_hat_l = self.simple_forward(x, x_len)
         language_loss = self.classification_criterion(y_hat_l, y_l)
 
         winners = y_hat_l.argmax(dim=1)
@@ -114,7 +170,7 @@ class LightningModel(pl.LightningModule):
         x, x_len, y_l  = batch
         y_l = torch.stack(y_l)
 
-        y_hat_l = self(x, x_len)
+        y_hat_l = self.simple_forward(x, x_len)
 
         winners = y_hat_l.argmax(dim=1)
         corrects = (winners == y_l.argmax(dim=1))

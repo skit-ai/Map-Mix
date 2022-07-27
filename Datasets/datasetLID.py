@@ -23,14 +23,14 @@ def collate_fn_mixup(batch):
     return data, mixup_data, label, mixup_label, seq_length, mixup_seq_length, filename
 
 def collate_fn(batch):
-    (seq, label, wav_duration) = zip(*batch)
+    (seq, wav_duration, label) = zip(*batch)
     
     seql = [x.reshape(-1,) for x in seq]
 
     seq_length = [x.shape[0] for x in seql]
     
     data = rnn_utils.pad_sequence(seql, batch_first=True, padding_value=0)
-    return data, label, seq_length
+    return data, seq_length, label
 
 class LIDDataset(Dataset):
     def __init__(self,
@@ -62,6 +62,7 @@ class LIDDataset(Dataset):
         self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
         self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='random', crop_position='random')
         self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='left', crop_position='center')
+        self.cluster = cluster
 
     def __len__(self):
         return self.data.shape[0]
@@ -125,7 +126,7 @@ class LIDDataset(Dataset):
             return wav, mixup_wav, language, mixup_language, torch.FloatTensor([wav_duration]), file
         else:
             wav = self.test_transform(wav)
-            return wav, language, torch.FloatTensor([wav_duration])
+            return wav, torch.FloatTensor([wav_duration]), language
 
 
 

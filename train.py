@@ -114,7 +114,7 @@ if __name__ == "__main__":
     lr_monitor = LearningRateMonitor(logging_interval='step')
 
     trainer = Trainer(
-        fast_dev_run=False, 
+        fast_dev_run=True, 
         gpus=hparams.gpu, 
         max_epochs=hparams.epochs, 
         checkpoint_callback=True,

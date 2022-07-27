@@ -13,7 +13,7 @@ class UpstreamTransformerXLSR(nn.Module):
         'xlsr_1b': 'https://dl.fbaipublicfiles.com/fairseq/wav2vec/xlsr2_960m_1000k.pt',
         'xlsr_2b': 'https://dl.fbaipublicfiles.com/fairseq/wav2vec/xlsr2_2B_1000k.pt'}
 
-        self.upstream = getattr(hub, 'wav2vec2_url')(self.xlsrModelsUrls[upstream_model])
+        self.upstream = getattr(hub, 'wav2vec2_url', self.xlsrModelsUrls[upstream_model])
         
         for param in self.upstream.parameters():
             param.requires_grad = False
@@ -62,3 +62,5 @@ class UpstreamTransformerXLSR(nn.Module):
                 raise Exception("Wrong mixup type. Supported types - 1. latent-mixup-last 2. static")
         else:
             return self.simple_forward(x, x_len)
+
+
