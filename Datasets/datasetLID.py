@@ -196,7 +196,7 @@ class LIDDataset(Dataset):
         mixup_language = torch.zeros(14)
 
         ######## Applying Mixup #########
-        probability = 1.0
+        probability = 0.5
         if self.is_train:
             current_class = self.datacsv.iloc[idx, 1]
             # current_lang = self.datacsv.iloc[idx, 2]

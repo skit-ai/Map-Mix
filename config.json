@@ -6,7 +6,7 @@
         "test_path": "$dir/lre17-test-set-less-than-60.csv",
         "val_path": "$dir/lre17-val-set-less-than-60.csv",
         "results_path": "/root/Langid/LangID-LRE17/results/results-xlsr-latent-across-5hr-set-1.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/xlsr-latent-across-1"
+        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/epoch=1-step=50443.ckpt"
     },
     "model_parameters": {
         "batch_size": "1",
