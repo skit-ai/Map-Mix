@@ -6,9 +6,9 @@ import numpy as np
 import pytorch_lightning as pl
 from torchmetrics import Accuracy
 from torchmetrics import F1Score
-# from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
+from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
-from Models.model import UpstreamTransformerXLSR
+# from Models.model import UpstreamTransformerXLSR
 from utils import CrossEntropyLoss
 from transformers import Wav2Vec2Processor, Wav2Vec2Model
 
@@ -25,17 +25,16 @@ class LightningModel(pl.LightningModule):
         for param in self.encoder.parameters():
             param.requires_grad = False
         
-        for param in self.encoder.encoder.layers.parameters():
+        for param in self.encoder.encoder.layers[20:].parameters():
             param.requires_grad = True
 
-        if HPARAMS['unfreeze_last_conv_layers']:
-            for param in self.encoder.feature_extractor.conv_layers[5:].parameters():
-                param.requires_grad = True
+        # if HPARAMS['unfreeze_last_conv_layers']:
+        #     for param in self.encoder.feature_extractor.conv_layers[5:].parameters():
+        #         param.requires_grad = True
         
         self.language_classifier = nn.Sequential(
             nn.Linear(HPARAMS['feature_dim'], 14),
         )
-        # self.model = XLSRLangID(self.processor, self.encoder, self.language_classifier)
 
         self.classification_criterion = CrossEntropyLoss()
         self.accuracy_metric = Accuracy()
@@ -93,9 +92,8 @@ class LightningModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        # scheduler = LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=5, max_epochs=100)
-        return [optimizer]
-        # , [scheduler]
+        scheduler = LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=5, max_epochs=100)
+        return [optimizer], [scheduler]
 
     def training_step(self, batch, batch_idx):
         x, mixup_x, y_l, mixup_y_l, x_len, mixup_x_len, filenames = batch

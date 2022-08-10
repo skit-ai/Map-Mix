@@ -109,12 +109,14 @@ if __name__ == "__main__":
         dirpath='checkpoints',
         monitor='val/loss', 
         mode='min',
-        verbose=1)
+        verbose=1,
+        filename=LIDConfig.run_name + '-{epoch}-{val_loss:.2f}'
+        )
 
     lr_monitor = LearningRateMonitor(logging_interval='step')
 
     trainer = Trainer(
-        fast_dev_run=True, 
+        fast_dev_run=False, 
         gpus=hparams.gpu, 
         max_epochs=hparams.epochs, 
         checkpoint_callback=True,

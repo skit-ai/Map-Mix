@@ -15,13 +15,6 @@ from config import LIDConfig
 from Datasets.datasetLID import LIDDataset
 from Models.lightning import LightningModel
 
-# def collate_fn(batch):
-#     (seq, wav_durations, label) = zip(*batch)
-#     seql = [x.reshape(-1,) for x in seq]
-#     seq_length = [x.shape[0] for x in seql]
-#     data = rnn_utils.pad_sequence(seql, batch_first=True, padding_value=0)
-#     return data, wav_durations, label
-
 def collate_fn(batch):
     (seq, wav_duration, label) = zip(*batch)
     seql = [x.reshape(-1,) for x in seq]
@@ -83,7 +76,6 @@ if __name__ == "__main__":
         def convert_to_labels(num):
             return num2labels[num]
 
-    
         for batch in tqdm(testloader):
             apply_mixup = False
             x, x_len, y_l  = batch
