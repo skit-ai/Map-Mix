@@ -40,8 +40,6 @@ if __name__ == "__main__":
     parser.add_argument('--model_checkpoint', type=str, default=LIDConfig.model_checkpoint)
     parser.add_argument('--model_type', type=str, default=LIDConfig.model_type)
     parser.add_argument('--upstream_model', type=str, default=LIDConfig.upstream_model)
-    parser.add_argument('--mixup_type', type=str, default=LIDConfig.mixup_type)
-    parser.add_argument('--cluster', type=str, default=LIDConfig.cluster)
     parser.add_argument('--unfreeze_last_conv_layers', action='store_true')
     parser.add_argument('--noise_dataset_path', type=str, default=None)
     
@@ -114,7 +112,7 @@ if __name__ == "__main__":
     lr_monitor = LearningRateMonitor(logging_interval='step')
 
     trainer = Trainer(
-        fast_dev_run=True, 
+        fast_dev_run=hparams.dev, 
         gpus=hparams.gpu, 
         max_epochs=hparams.epochs, 
         checkpoint_callback=True,

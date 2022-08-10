@@ -48,8 +48,7 @@ if __name__ == "__main__":
     parser.add_argument('--upstream_model', type=str, default=LIDConfig.upstream_model)
     parser.add_argument('--unfreeze_last_conv_layers', action='store_true')
     parser.add_argument('--noise_dataset_path', type=str, default=None)
-    parser.add_argument('--mixup_type', type=str, default=LIDConfig.mixup_type)
-    parser.add_argument('--cluster', type=str, default=LIDConfig.cluster)
+
     
     parser = pl.Trainer.add_argparse_args(parser)
     hparams = parser.parse_args()

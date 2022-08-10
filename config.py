@@ -40,7 +40,4 @@ class LIDConfig(object):
     
     # LR of optimizer
     lr = float(config['model_parameters']['lr'])
-    mixup_type = config['model_parameters']['mixup_type']
-    cluster = config['model_parameters']['cluster']
-
     run_name = config['run_name']
