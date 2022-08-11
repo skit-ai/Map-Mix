@@ -29,7 +29,6 @@ def collate_fn(batch):
     data = rnn_utils.pad_sequence(seql, batch_first=True, padding_value=0)
     return data, seq_length, label
 
-
 if __name__ == "__main__":
 
     parser = ArgumentParser(add_help=True)
@@ -116,4 +115,4 @@ if __name__ == "__main__":
 
         results_df.to_csv(LIDConfig.results_path, index=False)
     else:
-        print('Model checkpoint not found for Testing !!!')
+        print('Model checkpoint not found for Testing !!!') 

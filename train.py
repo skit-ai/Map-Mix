@@ -36,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=LIDConfig.lr)
     parser.add_argument('--gpu', type=int, default=LIDConfig.gpu)
     parser.add_argument('--n_workers', type=int, default=LIDConfig.n_workers)
-    parser.add_argument('--dev', type=str, default=False)
+    parser.add_argument('--dev', type=bool, default=False)
     parser.add_argument('--model_checkpoint', type=str, default=LIDConfig.model_checkpoint)
     parser.add_argument('--model_type', type=str, default=LIDConfig.model_type)
     parser.add_argument('--upstream_model', type=str, default=LIDConfig.upstream_model)
@@ -134,4 +134,4 @@ if __name__ == "__main__":
 
     trainer.fit(model, train_dataloader=trainloader, val_dataloaders=valloader)
 
-    print('\n\nCompleted Training...\nTesting the model with checkpoint -', model_checkpoint_callback.best_model_path)
+    # print('\n\nCompleted Training...\nTesting the model with checkpoint -', model_checkpoint_callback.best_model_path)

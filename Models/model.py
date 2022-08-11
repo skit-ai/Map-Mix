@@ -8,7 +8,7 @@ import s3prl.hub as hub
 class UpstreamTransformer(nn.Module):
     def __init__(self, upstream_model='wav2vec2', feature_dim=768, unfreeze_last_conv_layers=False):
         super().__init__()
-        self.upstream = torch.hub.load('s3prl/s3prl', upstream_model)
+        self.upstream = torch.hub.load('s3prl/s3prl', upstream_model) # hubert
         
         for param in self.upstream.parameters():
             param.requires_grad = False
