@@ -105,9 +105,10 @@ if __name__ == "__main__":
 
     model_checkpoint_callback = ModelCheckpoint(
         dirpath='checkpoints',
-        monitor='val/loss', 
-        mode='min',
-        verbose=1)
+        monitor='val/acc', 
+        mode='max',
+        verbose=1,
+        filename=LIDConfig.run_name + "-epoch={epoch}-val_acc={val/acc}.ckpt")
 
     lr_monitor = LearningRateMonitor(logging_interval='step')
 
@@ -118,11 +119,11 @@ if __name__ == "__main__":
         checkpoint_callback=True,
         callbacks=[
             EarlyStopping(
-                monitor='val/loss',
+                monitor='val/acc',
                 min_delta=0.00,
                 patience=50,
                 verbose=True,
-                mode='min'
+                mode='max'
                 ),
             model_checkpoint_callback,
             lr_monitor,

@@ -6,9 +6,9 @@ import ast
 import numpy as np
 # sns.set_theme(style="darkgrid")
 
-set_1 = pd.read_csv('/root/Langid/experiments/results/results-wav2vec-5hr-set-1.csv')
-set_2 = pd.read_csv('/root/Langid/experiments/results/results-wav2vec-5hr-set-1.csv')
-set_3 = pd.read_csv('/root/Langid/experiments/results/results-wav2vec-5hr-set-1.csv')
+set_1 = pd.read_csv('/root/Langid/experiments/results/results-hubert-acc_stop-5hr-set-1.csv')
+set_2 = pd.read_csv('/root/Langid/experiments/results/results-hubert-acc_stop-5hr-set-1.csv')
+set_3 = pd.read_csv('/root/Langid/experiments/results/results-hubert-acc_stop-5hr-set-1.csv')
 
 label2num = {'ara-acm': 0, 'ara-apc': 1, 'ara-ary': 2, 'ara-arz': 3, 'eng-gbr': 4, 'eng-usg': 5, 'qsl-pol': 6, 'qsl-rus': 7, 'por-brz': 8, 'spa-car': 9, 'spa-eur': 10, 'spa-lac': 11, 'zho-cmn': 12, 'zho-nan': 13}
 num2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}

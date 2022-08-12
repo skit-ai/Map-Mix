@@ -1,3 +1,4 @@
+from turtle import forward
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -65,3 +66,22 @@ class UpstreamTransformerXLSR(nn.Module):
     
     def forward(self, x, x_len):
         return self.simple_forward(x, x_len)
+
+
+from speechbrain.pretrained import EncoderClassifier
+
+class PretrainedLangID(nn.Module):
+    def __init__(self, upstream_model=None, feature_dim=None, unfreeze_last_conv_layers=None):
+        self.lang_enc = EncoderClassifier.from_hparams(source="speechbrain/lang-id-voxlingua107-ecapa", savedir="tmp")
+        for param in self.upstream.parameters():
+            param.requires_grad = False
+        
+        self.language_classifier = nn.Sequential(
+            nn.Linear(256, 14)
+        )
+
+    def forward(self, x, x_len):
+        language_emb = self.lang_enc.encode_batch(x)
+        language = self.language_classifier(language_emb)
+        return language
+

@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
-from Models.model import UpstreamTransformer, UpstreamTransformerXLSR
+from Models.model import UpstreamTransformer, UpstreamTransformerXLSR, PretrainedLangID
 from utils import CrossEntropyLoss
 
 
@@ -17,6 +17,7 @@ class LightningModel(pl.LightningModule):
         self.models = {
             'UpstreamTransformer': UpstreamTransformer, # wav2vec, hubert
             'UpstreamTransformerXLSR': UpstreamTransformerXLSR, # XLSR
+            'PretrainedLangID': PretrainedLangID,
         }
 
         self.model = self.models[HPARAMS['model_type']](upstream_model=HPARAMS['upstream_model'], feature_dim=HPARAMS['feature_dim'], unfreeze_last_conv_layers=HPARAMS['unfreeze_last_conv_layers'])

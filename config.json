@@ -1,23 +1,23 @@
 {
     "dataDir": {
         "dir": "/root/LRE2017Dataset/LRE2017",
-        "train_path": "$dir/lre17-segmented-train-set-5-hour-each-set-1.csv",
+        "train_path": "$dir/lre17-segmented-train-set-5-hour-each-set-3.csv",
         "test_path": "$dir/lre17-test-set-less-than-60.csv",
         "val_path": "$dir/lre17-val-set-less-than-60.csv",
-        "results_path": "/root/Langid/experiments/results/results-wav2vec-5hr-set-1.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/epoch=2-step=75665-v1.ckpt"
+        "results_path": "/root/Langid/experiments/results/results-wav2vec-acc_stop-5hr-set-2.csv",
+        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/baseline-hubert-acc_stop-1-epoch=epoch=12-step=step=327885-val_acc=val/acc=0.6652314066886902.ckpt.ckpt"
     },
     "model_parameters": {
         "batch_size": "1",
         "epochs": "30",
         "lr": "1e-5",
         "model_type": "UpstreamTransformer",
-        "upstream_model": "wav2vec2",
+        "upstream_model": "hubert",
         "_comment": "upstream model to be loaded from s3prl. Some of the upstream models are: wav2vec2, hubert, TERA, mockingjay",
         "feature_dim": "768"
     },
     "gpu": "1",
-    "run_name": "baseline-wav2vec-1",
+    "run_name": "baseline-hubert-3",
     "n_workers": "8" 
 }
 

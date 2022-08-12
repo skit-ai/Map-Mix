@@ -1,5 +1,5 @@
 wandb/
 checkpoints/
-nohup.out
 results/
 __pycache__/
+*.out
