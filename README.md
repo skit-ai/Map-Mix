@@ -5,8 +5,8 @@
 
 |                 | **Methods**          | **Accuracy** | **Weighted F1** | **Cluster Accuracy** | **ECE** |
 |-----------------|----------------------|--------------|-----------------|----------------------|---------|
-| baselines       | wav2vec2             | 0.598        | 0.577           | 0.938                | 0.310   |
-|                 | Hubert               | 0.605        | 0.590           | 0.931                | 0.311   |
+| baselines       | wav2vec2             | 0.585        | 0.555           | 0.927                | 0.342   |
+|                 | Hubert               | 0.596        | 0.571           | 0.932                | 0.326   |
 |                 | XLSR                 |              |                 |                      |         |
 |                 | VoxLingua Pretrained |              |                 |                      |         |
 | mixup baselines | XLSR static          |              |                 |                      |         |
