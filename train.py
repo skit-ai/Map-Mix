@@ -108,7 +108,7 @@ if __name__ == "__main__":
         monitor='val/acc', 
         mode='max',
         verbose=1,
-        filename=LIDConfig.run_name + "-epoch={epoch}-val_acc={val/acc}.ckpt")
+        filename=LIDConfig.run_name + "-epoch={epoch}.ckpt")
 
     lr_monitor = LearningRateMonitor(logging_interval='step')
 
