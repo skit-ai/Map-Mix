@@ -102,7 +102,7 @@ class LIDDataset(Dataset):
         mixup_language = torch.zeros(14)
 
         ######## Applying Mixup #########
-        probability = 0.5
+        probability = 1.0
         if self.is_train:
             current_class = self.datacsv.iloc[idx, 1]
             # current_lang = self.datacsv.iloc[idx, 2]
@@ -121,7 +121,7 @@ class LIDDataset(Dataset):
                     mixup_file = random.choice(mix_rows)
                     mixup_language = self.classes[mix_class]
 
-                else:
+                elif self.cluster == "random":
                     # random mixing
                     mixup_idx = random.randint(0, self.data.shape[0]-1)
                     mixup_file = self.data[mixup_idx][0]

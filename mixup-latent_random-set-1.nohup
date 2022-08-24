@@ -1,0 +1,129 @@
+nohup: ignoring input
+Global seed set to 100
+################################################################################
+### WARNING, path does not exist: KALDI_ROOT=/mnt/matylda5/iveselyk/Tools/kaldi-trunk
+###          (please add 'export KALDI_ROOT=<your_path>' in your $HOME/.profile)
+###          (or run as: KALDI_ROOT=<your_path> python <your_script>.py)
+################################################################################
+
+Some weights of the model checkpoint at facebook/wav2vec2-xls-r-300m were not used when initializing Wav2Vec2Model: ['quantizer.weight_proj.weight', 'project_hid.bias', 'project_hid.weight', 'project_q.bias', 'quantizer.weight_proj.bias', 'quantizer.codevectors', 'project_q.weight']
+- This IS expected if you are initializing Wav2Vec2Model from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Wav2Vec2Model from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Using native 16bit precision.
+GPU available: True, used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py:532: LightningDeprecationWarning: `trainer.fit(train_dataloader)` is deprecated in v1.4 and will be removed in v1.6. Use `trainer.fit(train_dataloaders)` instead. HINT: added 's'
+  "`trainer.fit(train_dataloader)` is deprecated in v1.4 and will be removed in v1.6."
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [1]
+wandb: Currently logged in as: shangeth. Use `wandb login --relogin` to force relogin
+Training Model on LID Dataset
+#Cores = 8	#GPU = 1
+Dataset Split (Train, Validation, Test)= 25222 2787 21930
+Model Details: #Params = 315453070	#Trainable Params = 302323726
+wandb: wandb version 0.13.2 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.12.21
+wandb: Run data is saved locally in /root/Langid/LangID-LRE17/wandb/run-20220823_135246-1bxun9uj
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run mixup-latent_random-set-1
+wandb: ⭐️ View project at https://wandb.ai/shangeth/LangID
+wandb: 🚀 View run at https://wandb.ai/shangeth/LangID/runs/1bxun9uj
+
+  | Name                | Type          | Params
+------------------------------------------------------
+0 | encoder             | Wav2Vec2Model | 315 M 
+1 | language_classifier | Sequential    | 14.3 K
+2 | accuracy_metric     | Accuracy      | 0     
+3 | f1_metric           | F1Score       | 0     
+------------------------------------------------------
+302 M     Trainable params
+13.1 M    Non-trainable params
+315 M     Total params
+1,261.812 Total estimated model params size (MB)
+Validation sanity check: 0it [00:00, ?it/s]Validation sanity check:   0% 0/2 [00:00<?, ?it/s]Validation sanity check:  50% 1/2 [00:03<00:03,  3.10s/it]Validation sanity check: 100% 2/2 [00:03<00:00,  1.42s/it]                                                          Global seed set to 100
+Training: -1it [00:00, ?it/s]Training:   0% 0/28009 [00:00<00:01, 14027.77it/s]Epoch 0:   0% 0/28009 [00:00<00:07, 3560.53it/s]  Traceback (most recent call last):
+  File "train.py", line 140, in <module>
+    trainer.fit(model, train_dataloader=trainloader, val_dataloaders=valloader)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 553, in fit
+    self._run(model)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 918, in _run
+    self._dispatch()
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 986, in _dispatch
+    self.accelerator.start_training(self)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 92, in start_training
+    self.training_type_plugin.start_training(trainer)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 161, in start_training
+    self._results = trainer.run_stage()
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 996, in run_stage
+    return self._run_train()
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/trainer/trainer.py", line 1045, in _run_train
+    self.fit_loop.run()
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/fit_loop.py", line 200, in advance
+    epoch_output = self.epoch_loop.run(train_dataloader)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 130, in advance
+    batch_output = self.batch_loop.run(batch, self.iteration_count, self._dataloader_idx)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 101, in run
+    super().run(batch, batch_idx, dataloader_idx)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/base.py", line 111, in run
+    self.advance(*args, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 148, in advance
+    result = self._run_optimization(batch_idx, split_batch, opt_idx, optimizer)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 202, in _run_optimization
+    self._optimizer_step(optimizer, opt_idx, batch_idx, closure)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 404, in _optimizer_step
+    using_lbfgs=is_lbfgs,
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/core/lightning.py", line 1618, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/core/optimizer.py", line 209, in step
+    self.__optimizer_step(*args, closure=closure, profiler_name=profiler_name, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/core/optimizer.py", line 129, in __optimizer_step
+    trainer.accelerator.optimizer_step(optimizer, self._optimizer_idx, lambda_closure=closure, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 293, in optimizer_step
+    self.lightning_module, optimizer, opt_idx, lambda_closure, **kwargs
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/plugins/precision/native_amp.py", line 59, in pre_optimizer_step
+    result = lambda_closure()
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 236, in _training_step_and_backward_closure
+    result = self.training_step_and_backward(split_batch, batch_idx, opt_idx, optimizer, hiddens)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 537, in training_step_and_backward
+    result = self._training_step(split_batch, batch_idx, opt_idx, hiddens)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 307, in _training_step
+    training_step_output = self.trainer.accelerator.training_step(step_kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/accelerators/accelerator.py", line 193, in training_step
+    return self.training_type_plugin.training_step(*step_kwargs.values())
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/pytorch_lightning/plugins/training_type/training_type_plugin.py", line 172, in training_step
+    return self.model.training_step(*args, **kwargs)
+  File "/root/Langid/LangID-LRE17/Models/lightning.py", line 112, in training_step
+    y_hat_l = self(x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, self.mixup_type)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/root/Langid/LangID-LRE17/Models/lightning.py", line 84, in forward
+    return self.mixup_forward(x, mixup_x, x_len, mixup_x_len, lam)
+  File "/root/Langid/LangID-LRE17/Models/lightning.py", line 69, in mixup_forward
+    mixup_x = self.encoder(mixup_x).last_hidden_state
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/transformers/models/wav2vec2/modeling_wav2vec2.py", line 1309, in forward
+    return_dict=return_dict,
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/transformers/models/wav2vec2/modeling_wav2vec2.py", line 877, in forward
+    hidden_states, attention_mask=attention_mask, output_attentions=output_attentions
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/transformers/models/wav2vec2/modeling_wav2vec2.py", line 711, in forward
+    hidden_states, attention_mask=attention_mask, output_attentions=output_attentions
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/torch/nn/modules/module.py", line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/root/anaconda3/envs/langidenv/lib/python3.7/site-packages/transformers/models/wav2vec2/modeling_wav2vec2.py", line 615, in forward
+    attn_output = torch.bmm(attn_probs, value_states)
+RuntimeError: CUDA out of memory. Tried to allocate 70.00 MiB (GPU 0; 39.41 GiB total capacity; 20.14 GiB already allocated; 51.56 MiB free; 20.27 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF
+wandb: Waiting for W&B process to finish... (failed 1). Press Control-C to abort syncing.
+wandb: - 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.001 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: - 0.001 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: \ 0.001 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: | 0.001 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: / 0.001 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: - 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: \ 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: | 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: / 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: - 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: \ 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: | 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: / 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb: - 0.012 MB of 0.012 MB uploaded (0.000 MB deduped)wandb:                                                                                
+wandb: Synced mixup-latent_random-set-1: https://wandb.ai/shangeth/LangID/runs/1bxun9uj
+wandb: Synced 6 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20220823_135246-1bxun9uj/logs

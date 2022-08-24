@@ -75,7 +75,7 @@ class UpstreamTransformerXLSR(nn.Module):
         for param in self.encoder.parameters():
             param.requires_grad = False
         
-        for param in self.encoder.encoder.layers.parameters():
+        for param in self.encoder.encoder.parameters():
             param.requires_grad = True
 
         if unfreeze_last_conv_layers:

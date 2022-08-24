@@ -25,7 +25,7 @@ class LightningModel(pl.LightningModule):
         for param in self.encoder.parameters():
             param.requires_grad = False
         
-        for param in self.encoder.encoder.layers[20:].parameters():
+        for param in self.encoder.encoder.layers.parameters():
             param.requires_grad = True
 
         # if HPARAMS['unfreeze_last_conv_layers']:
@@ -100,12 +100,12 @@ class LightningModel(pl.LightningModule):
         y_l = torch.stack(y_l)
         mixup_y_l = torch.stack(mixup_y_l)
         
-        apply_mixup = False
+        apply_mixup = False  
         lam = -1
 
         if (not torch.equal(mixup_y_l.cpu(), torch.zeros(mixup_y_l.shape))):
             apply_mixup = True
-            alpha = 1
+            alpha = 0.5 # updated based on teh original paper
             lam = np.random.beta(alpha, alpha)
             y_l = lam*y_l + (1-lam)*mixup_y_l
 

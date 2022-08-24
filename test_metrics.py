@@ -15,7 +15,6 @@ num2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:
 
 clusters = [['arabic',[0,1,2,3]], ['english',[4,5]], ['slavic',[6,7]], ['iberian',[8,9,10,11]], ['chinese',[12,13]]]
 
-
 def cluster_accuracy(df):
     true_cluster = []
     predicted_cluster = []
