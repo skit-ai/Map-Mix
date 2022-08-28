@@ -102,20 +102,26 @@ class UpstreamTransformerXLSR(nn.Module):
         return self.simple_forward(x, x_len)
 
 
-# from speechbrain.pretrained import EncoderClassifier
+from speechbrain.pretrained import EncoderClassifier
 
 class PretrainedLangID(nn.Module):
     def __init__(self, upstream_model=None, feature_dim=None, unfreeze_last_conv_layers=None):
-        self.lang_enc = EncoderClassifier.from_hparams(source="speechbrain/lang-id-voxlingua107-ecapa", savedir="tmp")
-        for param in self.upstream.parameters():
+        super().__init__()
+        self.lang_enc = EncoderClassifier.from_hparams(source="speechbrain/lang-id-voxlingua107-ecapa", savedir="tmp", run_opts={"device":"cuda"})
+        
+        for param in self.lang_enc.parameters():
             param.requires_grad = False
+        # self.lang_enc.eval()
         
         self.language_classifier = nn.Sequential(
             nn.Linear(256, 14)
         )
 
     def forward(self, x, x_len):
-        language_emb = self.lang_enc.encode_batch(x)
+        # print(x.shape)
+        # x = x.squeeze()
+        language_emb = self.lang_enc.encode_batch(x).squeeze(1)
+        # print("SHAPE = ", language_emb.shape)
         language = self.language_classifier(language_emb)
         return language
 

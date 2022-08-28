@@ -3,3 +3,4 @@ checkpoints/
 results/
 __pycache__/
 *.out
+tmp/
