@@ -102,7 +102,7 @@ class UpstreamTransformerXLSR(nn.Module):
         return self.simple_forward(x, x_len)
 
 
-from speechbrain.pretrained import EncoderClassifier
+# from speechbrain.pretrained import EncoderClassifier
 
 class PretrainedLangID(nn.Module):
     def __init__(self, upstream_model=None, feature_dim=None, unfreeze_last_conv_layers=None):
@@ -111,6 +111,8 @@ class PretrainedLangID(nn.Module):
         
         for param in self.lang_enc.parameters():
             param.requires_grad = False
+        
+        print(self.lang_enc)
         # self.lang_enc.eval()
         
         self.language_classifier = nn.Sequential(
