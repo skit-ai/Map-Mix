@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 min_delta=0.00,
                 patience=50,
                 verbose=True,
-                mode='max'
+                mode='max' 
                 ),
             model_checkpoint_callback,
             lr_monitor,

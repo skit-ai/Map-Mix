@@ -110,9 +110,9 @@ class PretrainedLangID(nn.Module):
         self.lang_enc = EncoderClassifier.from_hparams(source="speechbrain/lang-id-voxlingua107-ecapa", savedir="tmp", run_opts={"device":"cuda"})
         
         for param in self.lang_enc.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         
-        print(self.lang_enc)
+        # print(self.lang_enc)
         # self.lang_enc.eval()
         
         self.language_classifier = nn.Sequential(
@@ -125,5 +125,6 @@ class PretrainedLangID(nn.Module):
         language_emb = self.lang_enc.encode_batch(x).squeeze(1)
         # print("SHAPE = ", language_emb.shape)
         language = self.language_classifier(language_emb)
+        # print(language.shape)
         return language
 
