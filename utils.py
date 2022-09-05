@@ -22,7 +22,7 @@ from matplotlib.pyplot import ylabel
 import numpy as np
 from sklearn.metrics import roc_curve
 from sklearn.preprocessing import label_binarize
-from netcal.metrics import ECE
+# from netcal.metrics import ECE
 
 def EER(y, y_softmax_scores, classes=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]) :
     y = label_binarize(y, classes=classes)

@@ -100,14 +100,15 @@ class LightningModel(pl.LightningModule):
         y_l = torch.stack(y_l)
         mixup_y_l = torch.stack(mixup_y_l)
         
-        apply_mixup = False  
-        lam = -1
+        # apply_mixup = False  
+        # lam = -1
 
-        if (not torch.equal(mixup_y_l.cpu(), torch.zeros(mixup_y_l.shape))):
-            apply_mixup = True
-            alpha = 0.5 # updated based on teh original paper
-            lam = np.random.beta(alpha, alpha)
-            y_l = lam*y_l + (1-lam)*mixup_y_l
+        # if (not torch.equal(mixup_y_l.cpu(), torch.zeros(mixup_y_l.shape))):
+        #     print("\n\nMIXING!!!!\n\n")
+        apply_mixup = True
+        alpha = 0.5 # updated based on teh original paper
+        lam = np.random.beta(alpha, alpha)
+        y_l = lam*y_l + (1-lam)*mixup_y_l
 
         y_hat_l = self(x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, self.mixup_type)        
         probs = F.softmax(y_hat_l, dim=1)
