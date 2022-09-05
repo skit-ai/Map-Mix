@@ -16,6 +16,7 @@ from torch.utils.data import Dataset
 from Models.lightning import LightningModel
 import librosa
 import torchaudio
+import wavencoder
 
 def collate_fn(batch):
     (seq, wav_duration, label) = zip(*batch)
@@ -63,6 +64,7 @@ class LIDDataset(Dataset):
             }
         self.lang2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
         self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
+        self.test_transform = wavencoder.transforms.Crop(crop_length=480000, crop_position='center')
         self.cluster = cluster
 
     def __len__(self):
@@ -86,6 +88,7 @@ class LIDDataset(Dataset):
 
         # upsample 8k -> 16k
         wav = self.upsample(wav).unsqueeze(dim=0) 
+        wav = self.test_transform(wav)
         return wav, torch.FloatTensor([wav_duration]), language
 
 

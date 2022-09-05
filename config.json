@@ -4,7 +4,7 @@
         "train_path": "$dir/lre17-segmented-train-set-5-hour-each-set-2.csv",
         "test_path": "$dir/lre17-test-set-less-than-60.csv",
         "val_path": "$dir/lre17-val-set-less-than-60.csv",
-        "results_path": "/root/Langid/experiments/results/results-mixup_latent_random-set-2.csv",
+        "results_path": "/root/Langid/experiments/results/results-mixup_latent_random-set-2-1.csv",
         "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/mixup-latent_random-set-2-epoch=12.ckpt"
     },
     "model_parameters": {
