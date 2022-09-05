@@ -61,35 +61,9 @@ class LightningModel(pl.LightningModule):
         language = self.language_classifier(x)
         return language
 
-    def mixup_forward(self, x, mixup_x, x_len, mixup_x_len, lam):
-        # x = [torch.narrow(wav,0,0,x_len[i]) for (i,wav) in enumerate(x.squeeze(1))]
-        # mixup_x = [torch.narrow(mixup_wav,0,0,mixup_x_len[i]) for (i,mixup_wav) in enumerate(mixup_x.squeeze(1))]
-        
-        # print(x[0].shape, mixup_x[0].shape)
-        x = self.encoder(x).last_hidden_state
-        mixup_x = self.encoder(mixup_x).last_hidden_state
-        
-        x = torch.mean(x, dim=1)
-        mixup_x = torch.mean(mixup_x, dim=1)
-        
-        x = lam*x + (1-lam)*mixup_x
-
-        language = self.language_classifier(x)
-        return language
-
-    def forward(self, x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, mixup_type):
+    def forward(self, x, x_len):
         x = self.processor(x, sampling_rate=16000, return_tensors="pt")["input_values"].squeeze(0).to(self.device)
-        mixup_x = self.processor(mixup_x, sampling_rate=16000, return_tensors="pt")["input_values"].squeeze(0).to(self.device)
-        if(apply_mixup):
-            if mixup_type == 'latent-mixup-last':
-                return self.mixup_forward(x, mixup_x, x_len, mixup_x_len, lam)
-            elif mixup_type == 'static':
-                x = lam*x + (1-lam)*mixup_x
-                return self.simple_forward(x, x_len)
-            else:
-                raise Exception("Wrong mixup type. Supported types - 1. latent-mixup-last 2. static")
-        else:
-            return self.simple_forward(x, x_len)
+        return self.simple_forward(x, x_len)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -98,20 +72,10 @@ class LightningModel(pl.LightningModule):
         # , [scheduler]
 
     def training_step(self, batch, batch_idx):
-        x, mixup_x, y_l, mixup_y_l, x_len, mixup_x_len, filenames = batch
+        x, y_l, x_len, filenames = batch
         y_l = torch.stack(y_l)
-        mixup_y_l = torch.stack(mixup_y_l)
-        
-        apply_mixup = False
-        lam = -1
 
-        if (not torch.equal(mixup_y_l.cpu(), torch.zeros(mixup_y_l.shape))):
-            apply_mixup = True
-            alpha = 1
-            lam = np.random.beta(alpha, alpha)
-            y_l = lam*y_l + (1-lam)*mixup_y_l
-
-        y_hat_l = self(x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, self.mixup_type)        
+        y_hat_l = self(x, x_len)        
         probs = F.softmax(y_hat_l, dim=1)
 
         language_loss = self.classification_criterion(y_hat_l, y_l)
@@ -130,6 +94,7 @@ class LightningModel(pl.LightningModule):
                 'language_acc':language_acc,
                 'probs': probs.detach().cpu().numpy(),
                 'labels': y_l.argmax(dim=1).detach().cpu().numpy().astype(int),
+                'filenames': filenames,
                 }
     
     def training_epoch_end(self, outputs):
@@ -141,7 +106,7 @@ class LightningModel(pl.LightningModule):
         # self.log('train/acc',language_acc, on_step=False, on_epoch=True, prog_bar=True)
 
     def validation_step(self, batch, batch_idx):
-        x, x_len, y_l = batch
+        x, x_len, y_l, filenames  = batch
         y_l = torch.stack(y_l)
 
         y_hat_l = self.simple_forward(x, x_len)

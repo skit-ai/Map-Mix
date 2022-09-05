@@ -83,7 +83,7 @@ class LIDDataset(Dataset):
         # upsample 8k -> 16k
         wav = self.upsample(wav).unsqueeze(dim=0) 
         wav = self.test_transform(wav)
-        return wav, torch.FloatTensor([wav_duration]), language
+        return wav, torch.FloatTensor([wav_duration]), language, file
 
 
 if __name__ == "__main__":
