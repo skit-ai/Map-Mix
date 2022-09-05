@@ -22,6 +22,8 @@ os.environ['WANDB_MODE'] = 'online'
 
 from Datasets.datasetLID import LIDDataset, collate_fn, collate_fn_mixup
 from Models.lightning import LightningModel
+from Models.datamaps import DataMapsCallback, embed_datamaps_into_dataframe, generate_maps_plots_from_dataframe, metrics
+import pandas as pd
 
 
 if __name__ == "__main__":
@@ -113,6 +115,8 @@ if __name__ == "__main__":
 
     lr_monitor = LearningRateMonitor(logging_interval='step')
 
+    datamaps_cb = DataMapsCallback()
+
     trainer = Trainer(
         fast_dev_run=True, 
         gpus=hparams.gpu, 
@@ -126,6 +130,7 @@ if __name__ == "__main__":
                 verbose=True,
                 mode='min'
                 ),
+            datamaps_cb,
             model_checkpoint_callback,
             lr_monitor,
         ],
@@ -136,4 +141,8 @@ if __name__ == "__main__":
 
     trainer.fit(model, train_dataloader=trainloader, val_dataloaders=valloader)
 
-    print('\n\nCompleted Training...\nTesting the model with checkpoint -', model_checkpoint_callback.best_model_path)
+    # print('\n\nCompleted Training...\nTesting the model with checkpoint -', model_checkpoint_callback.best_model_path)
+
+    df = pd.read_csv(train_set.CSVPath).reset_index(drop=True)
+    embed_datamaps_into_dataframe(df, metrics)
+    generate_maps_plots_from_dataframe(df, 'plots/')
