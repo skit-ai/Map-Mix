@@ -19,7 +19,6 @@ class LightningModel(pl.LightningModule):
             'UpstreamTransformerXLSR': UpstreamTransformerXLSR, # XLSR
             'PretrainedLangID': PretrainedLangID,
         }
-
         self.model = self.models[HPARAMS['model_type']](upstream_model=HPARAMS['upstream_model'], feature_dim=HPARAMS['feature_dim'], unfreeze_last_conv_layers=HPARAMS['unfreeze_last_conv_layers'])
         self.classification_criterion = CrossEntropyLoss()
         self.lr = HPARAMS['lr']
@@ -36,8 +35,9 @@ class LightningModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        scheduler = LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=5, max_epochs=100)
-        return [optimizer], [scheduler]
+        # scheduler = LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=5, max_epochs=100)
+        return [optimizer]
+        # , [scheduler]
 
     def training_step(self, batch, batch_idx):
         x, x_len, y_l = batch

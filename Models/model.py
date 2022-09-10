@@ -70,6 +70,34 @@ class UpstreamTransformer(nn.Module):
 
 from transformers import Wav2Vec2Processor, Wav2Vec2Model
 
+class SelfAttentionPooling(nn.Module):
+    """
+    Implementation of SelfAttentionPooling 
+    Original Paper: Self-Attention Encoding and Pooling for Speaker Recognition
+    https://arxiv.org/pdf/2008.01077v1.pdf
+    """
+    def __init__(self, input_dim):
+        super(SelfAttentionPooling, self).__init__()
+        self.W = nn.Linear(input_dim, 1)
+        
+    def forward(self, batch_rep):
+        """
+        input:
+            batch_rep : size (N, T, H), N: batch size, T: sequence length, H: Hidden dimension
+        
+        attention_weight:
+            att_w : size (N, T, 1)
+        
+        return:
+            utter_rep: size (N, H)
+        """
+        softmax = nn.functional.softmax
+        att_w = softmax(self.W(batch_rep).squeeze(-1)).unsqueeze(-1)
+        utter_rep = torch.sum(batch_rep * att_w, dim=1)
+
+        return utter_rep
+
+
 class UpstreamTransformerXLSR(nn.Module):
     def __init__(self, upstream_model='xlsr_300m', feature_dim=1024, unfreeze_last_conv_layers=False):
         super().__init__()
@@ -78,23 +106,30 @@ class UpstreamTransformerXLSR(nn.Module):
         self.encoder = Wav2Vec2Model.from_pretrained("facebook/wav2vec2-xls-r-300m")
         
         for param in self.encoder.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         
         for param in self.encoder.encoder.layers.parameters():
             param.requires_grad = True
 
-        if unfreeze_last_conv_layers:
-            for param in self.encoder.model.feature_extractor.conv_layers[5:].parameters():
-                param.requires_grad = True
+        # print(self.encoder.encoder.layers)
+
+        # if unfreeze_last_conv_layers:
+        #     for param in self.encoder.model.feature_extractor.conv_layers[5:].parameters():
+        #         param.requires_grad = True
+
+        self.attention_pool = SelfAttentionPooling(feature_dim)
         
         self.language_classifier = nn.Sequential(
-            nn.Linear(feature_dim, 14),
+            nn.Linear(feature_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 14)
         )
 
     def simple_forward(self, x, x_len):
         x = self.processor(x, sampling_rate=16000, return_tensors="pt")["input_values"].squeeze(0).to("cuda")
         x = self.encoder(x).last_hidden_state
-        x = torch.mean(x, dim=1)
+        x = self.attention_pool(x)
+        # x = torch.mean(x, dim=1)
         language = self.language_classifier(x)
         return language
     

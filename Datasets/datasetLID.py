@@ -8,6 +8,8 @@ import torchaudio
 
 import wavencoder
 import librosa
+import random
+import numpy as np
 
 def collate_fn(batch):
     (seq, wav_duration, label) = zip(*batch)
@@ -41,9 +43,9 @@ class LIDDataset(Dataset):
             'zho-cmn': torch.eye(14)[12], 
             'zho-nan': torch.eye(14)[13]
             }
-        self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
-        self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='random', crop_position='random')
-        self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='left', crop_position='center')
+        # self.upsample = torchaudio.transforms.Resample(orig_freq=22050, new_freq=16000)
+        self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*8, pad_position='random', crop_position='random')
+        self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*20, pad_position='left', crop_position='center')
 
     def __len__(self):
         return self.data.shape[0]
@@ -53,10 +55,13 @@ class LIDDataset(Dataset):
             idx = idx.tolist()
         
         file = self.data[idx][0]
+        if file.endswith(".wav.wav"):
+            file = file[:-4]
         language = self.classes[self.data[idx][1]]
 
-        wav, _ = librosa.load(file, sr=8000)
-        wav = torch.from_numpy(wav)
+        # wav, _ = librosa.load(file)
+        wav, _ = torchaudio.load(file)
+        # wav = torch.from_numpy(wav)
         
         if(self.data.shape[1] == 3):
             wav_duration = self.data[idx][2]
@@ -64,10 +69,19 @@ class LIDDataset(Dataset):
             wav_duration = -1
 
         # upsample 8k -> 16k
-        wav = self.upsample(wav).unsqueeze(dim=0) 
+        # wav = self.upsample(wav).unsqueeze(dim=0) 
+        # wav = wav.unsqueeze(dim=0)
 
         if(self.is_train):
             wav = self.train_transform(wav)
+
+            if random.random()>0.5:
+            # Time Mask
+                l = wav.shape[-1]
+                window = random.choice([16000, 2*16000, 3*16000, 4*16000])
+                t = int(np.random.uniform(low=0, high=l-window))
+                wav[:,  t: t+window] = 0
+
         else:
             wav = self.test_transform(wav)
         return wav, torch.FloatTensor([wav_duration]), language

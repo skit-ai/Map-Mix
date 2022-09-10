@@ -1,3 +1,7 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter("ignore", UserWarning)
+
 from argparse import ArgumentParser
 
 from scipy.special import softmax
@@ -12,15 +16,79 @@ import torch.utils.data as data
 from tqdm import tqdm
 
 from config import LIDConfig
-from Datasets.datasetLID import LIDDataset
 from Models.lightning import LightningModel
 
-# def collate_fn(batch):
-#     (seq, wav_durations, label) = zip(*batch)
-#     seql = [x.reshape(-1,) for x in seq]
-#     seq_length = [x.shape[0] for x in seql]
-#     data = rnn_utils.pad_sequence(seql, batch_first=True, padding_value=0)
-#     return data, wav_durations, label
+
+import torchaudio
+import wavencoder
+import librosa
+from torch.utils.data import Dataset
+
+class LIDDataset(Dataset):
+    def __init__(self,
+    CSVPath,
+    hparams,
+    is_train=True,
+    ):
+        self.CSVPath = CSVPath
+        self.data = pd.read_csv(CSVPath).values
+        self.is_train = is_train
+        self.classes = {
+            'ara-acm': torch.eye(14)[0], 
+            'ara-apc': torch.eye(14)[1], 
+            'ara-ary': torch.eye(14)[2], 
+            'ara-arz': torch.eye(14)[3], 
+            'eng-gbr': torch.eye(14)[4], 
+            'eng-usg': torch.eye(14)[5], 
+            'qsl-pol': torch.eye(14)[6], 
+            'qsl-rus': torch.eye(14)[7], 
+            'por-brz': torch.eye(14)[8], 
+            'spa-car': torch.eye(14)[9], 
+            'spa-eur': torch.eye(14)[10], 
+            'spa-lac': torch.eye(14)[11], 
+            'zho-cmn': torch.eye(14)[12], 
+            'zho-nan': torch.eye(14)[13]
+            }
+        # self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
+        
+        # self.crop = wavencoder.transforms.Crop(crop_length=16000*30, crop_position='center')
+        # self.pad = wavencoder.transforms.Pad(pad_length=16000, pad_position='left')
+        self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*30, pad_position='left', crop_position='center')
+
+    def __len__(self):
+        return self.data.shape[0]
+    
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        
+        file = self.data[idx][0]
+        language = self.classes[self.data[idx][1]]
+
+        # wav, _ = librosa.load(file, sr=8000)
+        wav, _ = torchaudio.load(file)
+        # wav = torch.from_numpy(wav)
+        
+        if(self.data.shape[1] == 3):
+            wav_duration = self.data[idx][2]
+        else:
+            wav_duration = -1
+
+        # upsample 8k -> 16k
+        # wav = self.upsample(wav).unsqueeze(dim=0) 
+
+        # print(wav.shape)
+
+        # if wav.shape[-1] < 16000:
+        #     print(wav.shape[-1])
+        #     wav = self.pad(wav)
+        # else:
+        #     wav = self.crop(wav)
+        # print(wav.shape)
+
+
+        wav = self.test_transform(wav)
+        return wav, torch.FloatTensor([wav_duration]), language
 
 def collate_fn(batch):
     (seq, wav_duration, label) = zip(*batch)
@@ -88,9 +156,13 @@ if __name__ == "__main__":
             x, x_len, y_l  = batch
             x = x.to('cuda')
 
-            y_l = torch.stack(y_l)
-            y_hat_l = model(x, x_len)
 
+            y_l = torch.stack(y_l)
+            try:
+                y_hat_l = model(x, x_len)
+            except:
+                print(f"/n/n/nError here - {x.shape}/n/n/n")
+            # print(y_hat_l)
             probs = F.softmax(y_hat_l, dim=1).detach().cpu()
             probs = probs.numpy().astype(float).tolist()
 
@@ -100,12 +172,6 @@ if __name__ == "__main__":
             ground_truths = list(map(convert_to_labels, y_l))
             predictions = list(map(convert_to_labels, y_hat_l))
             # filenames = list(filenames)
-
-            #print(filenames)
-            #print(wav_durations)
-            #print(ground_truths)
-            #print(predictions)
-            #print(probs)
 
             rows = {'class': ground_truths, 'prediction': predictions, 'probability': probs}
 

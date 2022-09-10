@@ -77,22 +77,8 @@ if __name__ == "__main__":
         num_workers=hparams.n_workers,
         collate_fn = collate_fn,
     )
-    ## Testing Dataset
-    test_set = LIDDataset(
-        CSVPath = hparams.test_path,
-        hparams = hparams,
-        is_train=False
-    )
-    ## Testing Dataloader
-    testloader = data.DataLoader(
-        test_set, 
-        batch_size=hparams.batch_size,
-        shuffle=False, 
-        num_workers=hparams.n_workers,
-        collate_fn = collate_fn,
-    )
 
-    print('Dataset Split (Train, Validation, Test)=', len(train_set), len(valid_set), len(test_set))
+    print('Dataset Split (Train, Validation, Test)=', len(train_set), len(valid_set))
 
     logger = WandbLogger(
         name=LIDConfig.run_name,
@@ -101,7 +87,6 @@ if __name__ == "__main__":
     
     HPARAMS= vars(hparams)
     model = LightningModel(HPARAMS)
-
 
     model_checkpoint_callback = ModelCheckpoint(
         dirpath='checkpoints',
@@ -134,5 +119,3 @@ if __name__ == "__main__":
         )
 
     trainer.fit(model, train_dataloader=trainloader, val_dataloaders=valloader)
-
-    # print('\n\nCompleted Training...\nTesting the model with checkpoint -', model_checkpoint_callback.best_model_path)

@@ -5,10 +5,82 @@ from sklearn.metrics import f1_score, accuracy_score
 import ast
 import numpy as np
 # sns.set_theme(style="darkgrid")
+from matplotlib.pyplot import ylabel
+import numpy as np
+from sklearn.metrics import roc_curve
+from sklearn.preprocessing import label_binarize
+from netcal.metrics import ECE
 
-set_1 = pd.read_csv('/root/Langid/experiments/results/results-xlsr-5hr-set-3.csv')
-set_2 = pd.read_csv('/root/Langid/experiments/results/results-xlsr-5hr-set-3.csv')
-set_3 = pd.read_csv('/root/Langid/experiments/results/results-xlsr-5hr-set-3.csv')
+def EER(y, y_softmax_scores, classes=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]) :
+    y = label_binarize(y, classes=classes)
+    n_classes = 14
+    y_softmax_scores = np.stack(y_softmax_scores, axis=0)
+    total_eer = 0
+    for i in range(n_classes):
+        try:
+            fpr, tpr, _ = roc_curve(y[:, i], y_softmax_scores[:, i])
+            fnr = 1 - tpr
+            eer = fpr[np.nanargmin(np.absolute((fnr - fpr)))]
+            total_eer += eer
+        except:
+            pass
+    
+    average_eer = total_eer/n_classes
+    return average_eer
+
+def Cavg(y, y_pred):
+    # https://www.nist.gov/system/files/documents/2017/09/29/lre17_eval_plan-2017-09-29_v1.pdf
+    # section 3.1
+    ntar = 14
+    cavg_1 = 0.0
+    beta_1 = 1.0
+
+    cavg_2 = 0.0
+    beta_2 = 9.0
+
+    P_FA = np.zeros((ntar,ntar)).astype(float)
+    P_Miss = np.zeros((ntar,)).astype(float)
+
+    for i, label in enumerate(y):
+        pred_label = y_pred[i]
+        if(label != pred_label):
+            P_FA[label][pred_label] += 1
+            P_Miss[label] += 1
+
+    tar_count = np.array([y.count(i) for i in range(ntar)])
+    print(P_FA)
+    print(tar_count)
+
+    # get probabilities
+    P_FA /= tar_count.reshape(1, -1).transpose()
+    P_Miss /= tar_count
+
+    print(P_FA)
+    print(P_Miss)
+
+    for i in range(ntar):
+        cavg_1 += P_Miss[i]
+        cavg_2 += P_Miss[i]
+        
+        for j in range(ntar):
+            cavg_1 += (beta_1/(ntar-1))*P_FA[i][j]
+            cavg_2 += (beta_2/(ntar-1))*P_FA[i][j]
+
+    cavg_1 /= ntar
+    cavg_2 /= ntar
+    
+    c_primary = (cavg_1 + cavg_2)/2
+    return c_primary
+    
+def ECEMetric(y, y_softmax_scores):
+    y_softmax_scores = np.stack(y_softmax_scores, axis=0)
+    ece = ECE(10)
+    return ece.measure(y_softmax_scores, y)
+
+
+set_1 = pd.read_csv('/root/Langid/LangID-LRE17/results/results-xlsr-set-1.csv')
+set_2 = pd.read_csv('/root/Langid/LangID-LRE17/results/results-xlsr-set-2.csv')
+set_3 = pd.read_csv('/root/Langid/LangID-LRE17/results/results-xlsr-set-3.csv')
 
 label2num = {'ara-acm': 0, 'ara-apc': 1, 'ara-ary': 2, 'ara-arz': 3, 'eng-gbr': 4, 'eng-usg': 5, 'qsl-pol': 6, 'qsl-rus': 7, 'por-brz': 8, 'spa-car': 9, 'spa-eur': 10, 'spa-lac': 11, 'zho-cmn': 12, 'zho-nan': 13}
 num2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
