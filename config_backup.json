@@ -1,0 +1,23 @@
+{
+    "dataDir": {
+        "dir": "/root/LRE2017Dataset/LRE2017",
+        "train_path": "$dir/lre17-segmented-train-set-5-hour-each-set-1.csv",
+        "test_path": "$dir/lre17-test-set-less-than-60.csv",
+        "val_path": "$dir/lre17-val-set-less-than-60.csv",
+        "results_path": "/root/Langid/experiments/results/results-xlsr-6s-5hr-set-1.csv",
+        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/baseline-xlsr-6s-nolrsc-1-epoch=epoch=36.ckpt.ckpt"
+    },
+    "model_parameters": {
+        "batch_size": "16",
+        "epochs": "100",
+        "lr": "1e-5",
+        "model_type": "UpstreamTransformerXLSR",
+        "upstream_model": "xlsr_300m",
+        "_comment": "upstream model to be loaded from s3prl. Some of the upstream models are: wav2vec2, hubert, TERA, mockingjay",
+        "feature_dim": "1024"
+    },
+    "gpu": "1",
+    "run_name": "baseline-xlsr-6s-aug-1",
+    "n_workers": "10" 
+}
+

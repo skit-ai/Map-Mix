@@ -12,28 +12,55 @@ from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 from utils import CrossEntropyLoss
 from transformers import Wav2Vec2Processor, Wav2Vec2Model
 
+
+class SelfAttentionPooling(nn.Module):
+    """
+    Implementation of SelfAttentionPooling 
+    Original Paper: Self-Attention Encoding and Pooling for Speaker Recognition
+    https://arxiv.org/pdf/2008.01077v1.pdf
+    """
+    def __init__(self, input_dim):
+        super(SelfAttentionPooling, self).__init__()
+        self.W = nn.Linear(input_dim, 1)
+        
+    def forward(self, batch_rep):
+        """
+        input:
+            batch_rep : size (N, T, H), N: batch size, T: sequence length, H: Hidden dimension
+        
+        attention_weight:
+            att_w : size (N, T, 1)
+        
+        return:
+            utter_rep: size (N, H)
+        """
+        softmax = nn.functional.softmax
+        att_w = softmax(self.W(batch_rep).squeeze(-1)).unsqueeze(-1)
+        utter_rep = torch.sum(batch_rep * att_w, dim=1)
+
+        return utter_rep
+
 class LightningModel(pl.LightningModule):
     def __init__(self, HPARAMS):
         super().__init__()
         # HPARAMS
         self.save_hyperparameters()
-        # self.model = UpstreamTransformerXLSR(upstream_model=HPARAMS['upstream_model'], feature_dim=HPARAMS['feature_dim'], unfreeze_last_conv_layers=HPARAMS['unfreeze_last_conv_layers'])
 
         self.processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
         self.encoder = Wav2Vec2Model.from_pretrained("facebook/wav2vec2-xls-r-300m")
 
         for param in self.encoder.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         
         for param in self.encoder.encoder.layers.parameters():
             param.requires_grad = True
 
-        # if HPARAMS['unfreeze_last_conv_layers']:
-        #     for param in self.encoder.feature_extractor.conv_layers[5:].parameters():
-        #         param.requires_grad = True
-        
+        self.attn_pool = SelfAttentionPooling(HPARAMS['feature_dim'])
+
         self.language_classifier = nn.Sequential(
-            nn.Linear(HPARAMS['feature_dim'], 14),
+            nn.Linear(HPARAMS['feature_dim'], 512),
+            nn.ReLU(),
+            nn.Linear(512, 14)
         )
 
         self.classification_criterion = CrossEntropyLoss()
@@ -50,26 +77,18 @@ class LightningModel(pl.LightningModule):
     def count_trainable_parameters(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
-    # def forward(self, x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, mixup_type):
-    #     return self.model(x, mixup_x, x_len, mixup_x_len, apply_mixup, lam, mixup_type)
-
     def simple_forward(self, x, x_len):
-        # x = [torch.narrow(wav,0,0,x_len[i]) for (i,wav) in enumerate(x.squeeze(1))]
         x = self.encoder(x).last_hidden_state
-        x = torch.mean(x, dim=1)
+        x = self.attn_pool(x)
         language = self.language_classifier(x)
         return language
 
     def mixup_forward(self, x, mixup_x, x_len, mixup_x_len, lam):
-        # x = [torch.narrow(wav,0,0,x_len[i]) for (i,wav) in enumerate(x.squeeze(1))]
-        # mixup_x = [torch.narrow(mixup_wav,0,0,mixup_x_len[i]) for (i,mixup_wav) in enumerate(mixup_x.squeeze(1))]
-        
-        # print(x[0].shape, mixup_x[0].shape)
         x = self.encoder(x).last_hidden_state
         mixup_x = self.encoder(mixup_x).last_hidden_state
         
-        x = torch.mean(x, dim=1)
-        mixup_x = torch.mean(mixup_x, dim=1)
+        x = self.attn_pool(x)
+        mixup_x = self.attn_pool(mixup_x)
         
         x = lam*x + (1-lam)*mixup_x
 
@@ -92,21 +111,15 @@ class LightningModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        scheduler = LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=5, max_epochs=100)
-        return [optimizer], [scheduler]
+        return [optimizer]
 
     def training_step(self, batch, batch_idx):
         x, mixup_x, y_l, mixup_y_l, x_len, mixup_x_len, filenames = batch
         y_l = torch.stack(y_l)
         mixup_y_l = torch.stack(mixup_y_l)
-        
-        # apply_mixup = False  
-        # lam = -1
 
-        # if (not torch.equal(mixup_y_l.cpu(), torch.zeros(mixup_y_l.shape))):
-        #     print("\n\nMIXING!!!!\n\n")
         apply_mixup = True
-        alpha = 0.5 # updated based on teh original paper
+        alpha = 0.5 # updated based on the original paper
         lam = np.random.beta(alpha, alpha)
         y_l = lam*y_l + (1-lam)*mixup_y_l
 
@@ -119,11 +132,8 @@ class LightningModel(pl.LightningModule):
         corrects = (winners == y_l.argmax(dim=1))
         language_acc = corrects.sum().float() / float( y_hat_l.size(0) )
         train_step_acc = self.accuracy_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
-        train_step_f1 = self.f1_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
         loss = language_loss
-
-        self.log("train/f1", train_step_acc, on_step=False, on_epoch=True)
-        self.log("train/acc", train_step_f1, on_step=False, on_epoch=True)
+        self.log("train/acc", train_step_acc, on_step=False, on_epoch=True)
 
         return {'loss':loss, 
                 'language_acc':language_acc,
@@ -137,7 +147,6 @@ class LightningModel(pl.LightningModule):
         language_acc = torch.tensor([x['language_acc'] for x in outputs]).mean()
 
         self.log('train/loss' , loss, on_step=False, on_epoch=True, prog_bar=True)
-        # self.log('train/acc',language_acc, on_step=False, on_epoch=True, prog_bar=True)
 
     def validation_step(self, batch, batch_idx):
         x, x_len, y_l = batch
@@ -151,10 +160,7 @@ class LightningModel(pl.LightningModule):
         language_acc = corrects.sum().float() / float( y_hat_l.size(0) )
 
         val_step_acc = self.accuracy_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
-        val_step_f1 = self.f1_metric(y_hat_l.argmax(dim=1), y_l.argmax(dim=1))
-
-        self.log("val/f1", val_step_acc, on_step=False, on_epoch=True)
-        self.log("val/acc", val_step_f1, on_step=False, on_epoch=True)
+        self.log("val/acc", val_step_acc, on_step=False, on_epoch=True)
 
         loss = language_loss
 
@@ -168,22 +174,3 @@ class LightningModel(pl.LightningModule):
         
         self.log('val/loss' , val_loss, on_step=False, on_epoch=True, prog_bar=True)
         # self.log('val/acc',language_acc, on_step=False, on_epoch=True, prog_bar=True)
-
-    def test_step(self, batch, batch_idx):
-        x, x_len, y_l  = batch
-        y_l = torch.stack(y_l)
-
-        y_hat_l = self.simple_forward(x, x_len)
-
-        winners = y_hat_l.argmax(dim=1)
-        corrects = (winners == y_l.argmax(dim=1))
-        language_acc = corrects.sum().float() / float( y_hat_l.size(0) )
-
-        return {'language_acc':language_acc}
-
-    def test_epoch_end(self, outputs):
-        language_acc = torch.tensor([x['language_acc'] for x in outputs]).mean()
-
-        pbar = {'language_acc' : language_acc}
-        self.logger.log_hyperparams(pbar)
-        self.log_dict(pbar)

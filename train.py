@@ -36,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=LIDConfig.lr)
     parser.add_argument('--gpu', type=int, default=LIDConfig.gpu)
     parser.add_argument('--n_workers', type=int, default=LIDConfig.n_workers)
-    parser.add_argument('--dev', type=str, default=False)
+    parser.add_argument('--dev', type=bool, default=False)
     parser.add_argument('--model_checkpoint', type=str, default=LIDConfig.model_checkpoint)
     parser.add_argument('--model_type', type=str, default=LIDConfig.model_type)
     parser.add_argument('--upstream_model', type=str, default=LIDConfig.upstream_model)
@@ -73,28 +73,14 @@ if __name__ == "__main__":
     ## Validation Dataloader
     valloader = data.DataLoader(
         valid_set, 
-        batch_size=hparams.batch_size,
+        batch_size=4,
         # hparams.batch_size, 
         shuffle=False, 
         num_workers=hparams.n_workers,
         collate_fn = collate_fn,
     )
-    ## Testing Dataset
-    test_set = LIDDataset(
-        CSVPath = hparams.test_path,
-        hparams = hparams,
-        is_train=False
-    )
-    ## Testing Dataloader
-    testloader = data.DataLoader(
-        test_set, 
-        batch_size=hparams.batch_size,
-        shuffle=False, 
-        num_workers=hparams.n_workers,
-        collate_fn = collate_fn,
-    )
 
-    print('Dataset Split (Train, Validation, Test)=', len(train_set), len(valid_set), len(test_set))
+    print('Dataset Split (Train, Validation)=', len(train_set), len(valid_set))
 
     logger = WandbLogger(
         name=LIDConfig.run_name,
@@ -104,21 +90,19 @@ if __name__ == "__main__":
     HPARAMS= vars(hparams)
     model = LightningModel(HPARAMS)
 
-
     model_checkpoint_callback = ModelCheckpoint(
         dirpath='checkpoints',
         monitor='val/acc', 
         mode='max',
         verbose=1,
-        filename=LIDConfig.run_name + '-{epoch}',
+        filename=LIDConfig.run_name + "-epoch={epoch}.ckpt",
         save_top_k=2
         )
 
-    lr_monitor = LearningRateMonitor(logging_interval='step')
+    # lr_monitor = LearningRateMonitor(logging_interval='step')
 
     trainer = Trainer(
-        precision=16,
-        fast_dev_run=False, 
+        fast_dev_run=hparams.dev, 
         gpus=hparams.gpu, 
         max_epochs=hparams.epochs, 
         checkpoint_callback=True,
@@ -131,7 +115,7 @@ if __name__ == "__main__":
                 mode='max'
                 ),
             model_checkpoint_callback,
-            lr_monitor,
+            # lr_monitor,
         ],
         logger=logger,
         # resume_from_checkpoint=hparams.model_checkpoint,
@@ -139,5 +123,3 @@ if __name__ == "__main__":
         )
 
     trainer.fit(model, train_dataloader=trainloader, val_dataloaders=valloader)
-
-    print('\n\nCompleted Training...\nTesting the model with checkpoint -', model_checkpoint_callback.best_model_path)

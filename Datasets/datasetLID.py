@@ -8,6 +8,7 @@ import torch.nn.utils.rnn as rnn_utils
 import torchaudio
 import wavencoder
 import librosa
+import numpy as np
 
 def collate_fn_mixup(batch):
     (seq, mixup_seq, label, mixup_label, wav_duration, filename) = zip(*batch)
@@ -70,9 +71,9 @@ class LIDDataset(Dataset):
             'zho-nan': torch.eye(14)[13]
             }
         self.lang2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
-        self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
-        self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='random', crop_position='random')
-        self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='left', crop_position='center')
+        # self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
+        self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*8, pad_position='random', crop_position='random')
+        self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*20, pad_position='left', crop_position='center')
         self.cluster = cluster
 
     def __len__(self):
@@ -86,8 +87,9 @@ class LIDDataset(Dataset):
         
         language = self.classes[self.data[idx][1]]
 
-        wav, _ = librosa.load(file, sr=8000)
-        wav = torch.from_numpy(wav)
+        # wav, _ = librosa.load(file, sr=8000)
+        # wav = torch.from_numpy(wav)
+        wav, _ = torchaudio.load(file)
         
         if(self.data.shape[1] == 3):
             wav_duration = self.data[idx][2]
@@ -95,7 +97,7 @@ class LIDDataset(Dataset):
             wav_duration = -1
 
         # upsample 8k -> 16k
-        wav = self.upsample(wav).unsqueeze(dim=0) 
+        # wav = self.upsample(wav).unsqueeze(dim=0) 
 
         # Mixup
         mixup_wav = torch.zeros(1)
@@ -127,14 +129,22 @@ class LIDDataset(Dataset):
                     mixup_file = self.data[mixup_idx][0]
                     mixup_language = self.classes[self.data[mixup_idx][1]]
 
-                mixup_wav, _ = librosa.load(mixup_file, sr=8000)
-                mixup_wav = torch.from_numpy(mixup_wav)
+                # mixup_wav, _ = librosa.load(mixup_file, sr=8000)
+                # mixup_wav = torch.from_numpy(mixup_wav)
 
-                mixup_wav = self.upsample(mixup_wav).unsqueeze(dim=0)
+                mixup_wav, _ = torchaudio.load(mixup_file)
+
+                # mixup_wav = self.upsample(mixup_wav).unsqueeze(dim=0)
 
                 mixup_wav = self.train_transform(mixup_wav)
         ######## Done applying Mixup #########
             wav = self.train_transform(wav)
+            if random.random()>0.5:
+            # Time Mask
+                l = wav.shape[-1]
+                window = random.choice([16000, 2*16000, 3*16000, 4*16000])
+                t = int(np.random.uniform(low=0, high=l-window))
+                wav[:,  t: t+window] = 0
             return wav, mixup_wav, language, mixup_language, torch.FloatTensor([wav_duration]), file
         else:
             wav = self.test_transform(wav)
