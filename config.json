@@ -1,15 +1,15 @@
 {
     "dataDir": {
         "dir": "/root/LRE2017Dataset/LRE2017_16k",
-        "train_path": "$dir/trainset3.csv",
+        "train_path": "$dir/trainset2.csv",
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
-        "results_path": "/root/Langid/LangID-LRE17/results/results-xlsr-set-3.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/baseline-xlsr-30s-aug-3-epoch=epoch=32.ckpt.ckpt"
+        "results_path": "/root/Langid/LangID-LRE17/results/csv/xlsr-3.csv",
+        "model_checkpoint": "/root/Langid/LangID-LRE17/results/checkpoints/xlsr-3.ckpt"
     },
     "model_parameters": {
-        "batch_size": "16",
-        "epochs": "100",
+        "batch_size": "64",
+        "epochs": "35",
         "lr": "1e-5",
         "model_type": "UpstreamTransformerXLSR",
         "upstream_model": "xlsr_300m",
@@ -17,7 +17,7 @@
         "feature_dim": "1024"
     },
     "gpu": "1",
-    "run_name": "baseline-xlsr-30s-aug-3",
-    "n_workers": "10" 
+    "run_name": "baseline-hubert-3",
+    "n_workers": "8" 
 }
 

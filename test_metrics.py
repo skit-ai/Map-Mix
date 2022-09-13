@@ -1,6 +1,6 @@
 import pandas as pd
 # import seaborn as sns
-from utils import ECEMetric, EER
+# from utils import ECEMetric, EER
 from sklearn.metrics import f1_score, accuracy_score
 import ast
 import numpy as np
@@ -78,9 +78,9 @@ def ECEMetric(y, y_softmax_scores):
     return ece.measure(y_softmax_scores, y)
 
 
-set_1 = pd.read_csv('/root/Langid/LangID-LRE17/results/results-xlsr-set-1.csv')
-set_2 = pd.read_csv('/root/Langid/LangID-LRE17/results/results-xlsr-set-2.csv')
-set_3 = pd.read_csv('/root/Langid/LangID-LRE17/results/results-xlsr-set-3.csv')
+set_1 = pd.read_csv('/root/Langid/LangID-LRE17/results/csv/xlsr-1.csv')
+set_2 = pd.read_csv('/root/Langid/LangID-LRE17/results/csv/xlsr-2.csv')
+set_3 = pd.read_csv('/root/Langid/LangID-LRE17/results/csv/xlsr-3.csv')
 
 label2num = {'ara-acm': 0, 'ara-apc': 1, 'ara-ary': 2, 'ara-arz': 3, 'eng-gbr': 4, 'eng-usg': 5, 'qsl-pol': 6, 'qsl-rus': 7, 'por-brz': 8, 'spa-car': 9, 'spa-eur': 10, 'spa-lac': 11, 'zho-cmn': 12, 'zho-nan': 13}
 num2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
@@ -135,18 +135,18 @@ def metrics(df):
     language_softmax_30 = []
 
     for i in range(len(df)):
-        # if(int(df.loc[i,'duration']) == 3):
-        #     language_pred_3.append(df.loc[i, 'prediction'])
-        #     language_true_3.append(df.loc[i, 'class'])
-        #     language_softmax_3.append(ast.literal_eval(df.loc[i, 'probability']))
-        # if(int(df.loc[i,'duration']) == 10):
-        #     language_pred_10.append(df.loc[i, 'prediction'])
-        #     language_true_10.append(df.loc[i, 'class'])
-        #     language_softmax_10.append(ast.literal_eval(df.loc[i, 'probability']))
-        # if(int(df.loc[i,'duration']) == 30):
-        language_pred_30.append(df.loc[i, 'prediction'])
-        language_true_30.append(df.loc[i, 'class'])
-        language_softmax_30.append(ast.literal_eval(df.loc[i, 'probability']))
+        if(int(df.loc[i,'duration']) == 3):
+            language_pred_3.append(df.loc[i, 'prediction'])
+            language_true_3.append(df.loc[i, 'class'])
+            language_softmax_3.append(ast.literal_eval(df.loc[i, 'probability']))
+        if(int(df.loc[i,'duration']) == 10):
+            language_pred_10.append(df.loc[i, 'prediction'])
+            language_true_10.append(df.loc[i, 'class'])
+            language_softmax_10.append(ast.literal_eval(df.loc[i, 'probability']))
+        if(int(df.loc[i,'duration']) == 30):
+            language_pred_30.append(df.loc[i, 'prediction'])
+            language_true_30.append(df.loc[i, 'class'])
+            language_softmax_30.append(ast.literal_eval(df.loc[i, 'probability']))
 
     acc = accuracy_score(list(df['class']), list(df['prediction']))
     f1 = f1_score(list(df['class']), list(df['prediction']), average='weighted')
