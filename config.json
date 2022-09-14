@@ -4,8 +4,8 @@
         "train_path": "$dir/trainset1.csv",
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
-        "results_path": "/root/Langid/LangID-LRE17/results/csv/xlsr-3.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/results/checkpoints/xlsr-3.ckpt"
+        "results_path": "/root/Langid/LangID-LRE17/results/csv/xlsr-latent-random-1.csv",
+        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/mixup-latent_random-set-1-epoch=epoch=32.ckpt.ckpt"
     },
     "model_parameters": {
         "batch_size": "8",

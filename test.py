@@ -31,6 +31,7 @@ parser.add_argument('--model_type', type=str, default=LIDConfig.model_type)
 parser.add_argument('--upstream_model', type=str, default=LIDConfig.upstream_model)
 parser.add_argument('--unfreeze_last_conv_layers', action='store_true')
 parser.add_argument('--noise_dataset_path', type=str, default=None)
+parser.add_argument('--mixup_type', type=str, default=LIDConfig.mixup_type)
 
 parser = pl.Trainer.add_argparse_args(parser)
 hparams = parser.parse_args()
@@ -65,7 +66,7 @@ for index, row in tqdm(test_df.iterrows()):
 
     wav_tensor = wav_tensor.to("cuda")
     x_lens = wav_tensor.shape[0]*[wav_tensor.shape[-1]]
-    y_hat_l = model(wav_tensor, x_lens)
+    y_hat_l = model.simple_forward(wav_tensor, x_lens)
     probs = F.softmax(y_hat_l, dim=1).detach().cpu().mean(0).view(1, 14)
     y_hat_l = probs.argmax(dim=1).detach().cpu().numpy().astype(int)
     probs = probs.numpy().astype(float).tolist()
