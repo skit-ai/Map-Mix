@@ -6,3 +6,7 @@ __pycache__/
 *.out
 checkpoints/
 tmp/
+dataprocess/
+tmp/
+*.ipynb
+plots/

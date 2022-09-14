@@ -20,7 +20,7 @@ torch.manual_seed(SEED)
 os.environ['WANDB_MODE'] = 'online'
 
 
-from Datasets.datasetLID import LIDDataset, collate_fn, collate_fn_mixup
+from Datasets.datasetLID import LIDDataset, collate_fn
 from Models.lightning import LightningModel
 from Models.datamaps import DataMapsCallback, embed_datamaps_into_dataframe, generate_maps_plots_from_dataframe, metrics
 import pandas as pd
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=LIDConfig.lr)
     parser.add_argument('--gpu', type=int, default=LIDConfig.gpu)
     parser.add_argument('--n_workers', type=int, default=LIDConfig.n_workers)
-    parser.add_argument('--dev', type=str, default=False)
+    parser.add_argument('--dev', type=bool, default=False)
     parser.add_argument('--model_checkpoint', type=str, default=LIDConfig.model_checkpoint)
     parser.add_argument('--model_type', type=str, default=LIDConfig.model_type)
     parser.add_argument('--upstream_model', type=str, default=LIDConfig.upstream_model)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         batch_size=hparams.batch_size, 
         shuffle=True, 
         num_workers=hparams.n_workers,
-        collate_fn = collate_fn_mixup,
+        collate_fn = collate_fn,
     )
     ## Validation Dataset
     valid_set = LIDDataset(
@@ -106,25 +106,24 @@ if __name__ == "__main__":
     HPARAMS= vars(hparams)
     model = LightningModel(HPARAMS)
 
-
     model_checkpoint_callback = ModelCheckpoint(
         dirpath='checkpoints',
         monitor='val/loss', 
         mode='min',
         verbose=1)
 
-    lr_monitor = LearningRateMonitor(logging_interval='step')
+    # lr_monitor = LearningRateMonitor(logging_interval='step')
 
     datamaps_cb = DataMapsCallback()
 
     trainer = Trainer(
-        fast_dev_run=True, 
+        fast_dev_run=hparams.dev, 
         gpus=hparams.gpu, 
         max_epochs=hparams.epochs, 
         checkpoint_callback=True,
         callbacks=[
             EarlyStopping(
-                monitor='val/loss',
+                monitor='train/loss',
                 min_delta=0.00,
                 patience=50,
                 verbose=True,
@@ -132,14 +131,14 @@ if __name__ == "__main__":
                 ),
             datamaps_cb,
             model_checkpoint_callback,
-            lr_monitor,
+            # lr_monitor,
         ],
         logger=logger,
         # resume_from_checkpoint=hparams.model_checkpoint,
         # distributed_backend='ddp'
         )
 
-    trainer.fit(model, train_dataloader=trainloader, val_dataloaders=valloader)
+    trainer.fit(model, train_dataloader=trainloader)
 
     # print('\n\nCompleted Training...\nTesting the model with checkpoint -', model_checkpoint_callback.best_model_path)
 

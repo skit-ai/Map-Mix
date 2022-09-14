@@ -1,16 +1,16 @@
 {
     "model_name": "latent_across_lid",
     "dataDir": {
-        "dir": "/root/LRE2017Dataset/LRE2017",
-        "train_path": "$dir/lre17-segmented-train-set-5-hour-each-set-1.csv",
-        "test_path": "$dir/lre17-test-set-less-than-60.csv",
-        "val_path": "$dir/lre17-val-set-less-than-60.csv",
+        "dir": "/root/LRE2017Dataset/LRE2017_16k",
+        "train_path": "$dir/trainset1.csv",
+        "test_path": "$dir/testset1.csv",
+        "val_path": "$dir/valset1.csv",
         "results_path": "/root/Langid/LangID-LRE17/results/results-xlsr-latent-across-5hr-set-1.csv",
         "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/epoch=1-step=50443.ckpt"
     },
     "model_parameters": {
-        "batch_size": "1",
-        "epochs": "50",
+        "batch_size": "8",
+        "epochs": "10",
         "lr": "1e-5",
         "model_type": "UpstreamTransformerXLSR",
         "upstream_model": "xlsr_300m",

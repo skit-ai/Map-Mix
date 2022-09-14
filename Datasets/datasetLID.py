@@ -10,14 +10,14 @@ import wavencoder
 import librosa
 
 def collate_fn(batch):
-    (seq, wav_duration, label) = zip(*batch)
+    (seq, wav_duration, label, filenames) = zip(*batch)
     
     seql = [x.reshape(-1,) for x in seq]
 
     seq_length = [x.shape[0] for x in seql]
     
     data = rnn_utils.pad_sequence(seql, batch_first=True, padding_value=0)
-    return data, seq_length, label
+    return data, label, seq_length, filenames
 
 
 class LIDDataset(Dataset):
@@ -25,7 +25,6 @@ class LIDDataset(Dataset):
     CSVPath,
     hparams,
     is_train=True,
-    cluster = "across"
     ):
         self.CSVPath = CSVPath
         self.data = pd.read_csv(CSVPath).values
@@ -56,10 +55,8 @@ class LIDDataset(Dataset):
             'zho-nan': torch.eye(14)[13]
             }
         self.lang2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
-        self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
-        self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='random', crop_position='random')
-        self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=480000, pad_position='left', crop_position='center')
-        self.cluster = cluster
+        self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=8*16000, pad_position='random', crop_position='random')
+        self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=20*16000, pad_position='left', crop_position='center')
 
     def __len__(self):
         return self.data.shape[0]
@@ -72,17 +69,17 @@ class LIDDataset(Dataset):
         
         language = self.classes[self.data[idx][1]]
 
-        wav, _ = librosa.load(file, sr=8000)
-        wav = torch.from_numpy(wav)
+        wav, _ = torchaudio.load(file)
         
         if(self.data.shape[1] == 3):
             wav_duration = self.data[idx][2]
         else:
             wav_duration = -1
 
-        # upsample 8k -> 16k
-        wav = self.upsample(wav).unsqueeze(dim=0) 
-        wav = self.test_transform(wav)
+        if(self.is_train):
+            wav = self.train_transform(wav)
+        else:
+            wav = self.test_transform(wav)
         return wav, torch.FloatTensor([wav_duration]), language, file
 
 
