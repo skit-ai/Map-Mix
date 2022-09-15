@@ -5,8 +5,8 @@
         "train_path": "$dir/trainset1.csv",
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
-        "results_path": "/root/Langid/LangID-LRE17/results/results-xlsr-latent-across-5hr-set-1.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/epoch=1-step=50443.ckpt"
+        "results_path": "",
+        "model_checkpoint": ""
     },
     "model_parameters": {
         "batch_size": "8",
@@ -20,7 +20,7 @@
         "cluster": "across"
     },
     "gpu": "1",
-    "run_name": "xlsr-latent-across-1",
+    "run_name": "xlsr-datamaps-1",
     "n_workers": "8" 
 }
 

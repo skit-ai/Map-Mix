@@ -144,4 +144,4 @@ if __name__ == "__main__":
 
     df = pd.read_csv(train_set.CSVPath).reset_index(drop=True)
     embed_datamaps_into_dataframe(df, metrics)
-    generate_maps_plots_from_dataframe(df, 'plots/')
+    generate_maps_plots_from_dataframe(df, '/root/Langid/results/plots')

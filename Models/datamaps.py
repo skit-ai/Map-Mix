@@ -127,5 +127,5 @@ def generate_maps_plots_from_dataframe(df: pd.DataFrame, dir_: str):
         )
     if not os.path.exists(dir_):
         os.makedirs(dir_)
-    df.to_csv(os.path.join(dir_, "datamaps-metrics.csv"), index=False)
-    plt.savefig(os.path.join(dir_, "datamaps.png"), format="png")
+    df.to_csv(os.path.join(dir_, "datamaps-metrics-1.csv"), index=False)
+    plt.savefig(os.path.join(dir_, "datamaps-1.png"), format="png")

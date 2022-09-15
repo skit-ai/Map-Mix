@@ -7,6 +7,5 @@ __pycache__/
 checkpoints/
 tmp/
 dataprocess/
-tmp/
 *.ipynb
 plots/
