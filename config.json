@@ -2,7 +2,7 @@
     "model_name": "latent_across_lid",
     "dataDir": {
         "dir": "/root/LRE2017Dataset/LRE2017_16k",
-        "train_path": "$dir/trainset1.csv",
+        "train_path": "$dir/trainset3.csv",
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
         "results_path": "",
@@ -10,7 +10,7 @@
     },
     "model_parameters": {
         "batch_size": "8",
-        "epochs": "10",
+        "epochs": "5",
         "lr": "1e-5",
         "model_type": "UpstreamTransformerXLSR",
         "upstream_model": "xlsr_300m",
@@ -20,7 +20,7 @@
         "cluster": "across"
     },
     "gpu": "1",
-    "run_name": "xlsr-datamaps-1",
+    "run_name": "xlsr-datamaps-3",
     "n_workers": "8" 
 }
 
