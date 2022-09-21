@@ -34,7 +34,6 @@ def collate_fn(batch):
     return data, seq_length, label
 
 
-
 class LIDDataset(Dataset):
     def __init__(self,
     CSVPath,
@@ -42,6 +41,10 @@ class LIDDataset(Dataset):
     is_train=True,
     cluster = "across"
     ):
+        self.datamaps_df = pd.read_csv("/root/Langid/results/plots/datamaps-metrics-3.csv")
+        # print(self.datamaps_df.head())
+        self.easy_samples = self.datamaps_df[self.datamaps_df["confidence"]>0.65][self.datamaps_df["variability"]<0.3]
+        self.hard_samples = self.datamaps_df[self.datamaps_df["confidence"]<0.3][self.datamaps_df["variability"]<0.2]
         self.CSVPath = CSVPath
         self.data = pd.read_csv(CSVPath).values
         if is_train:
@@ -71,7 +74,6 @@ class LIDDataset(Dataset):
             'zho-nan': torch.eye(14)[13]
             }
         self.lang2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
-        # self.upsample = torchaudio.transforms.Resample(orig_freq=8000, new_freq=16000)
         self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*8, pad_position='random', crop_position='random')
         self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*20, pad_position='left', crop_position='center')
         self.cluster = cluster
@@ -86,18 +88,12 @@ class LIDDataset(Dataset):
         file = self.data[idx][0]
         
         language = self.classes[self.data[idx][1]]
-
-        # wav, _ = librosa.load(file, sr=8000)
-        # wav = torch.from_numpy(wav)
         wav, _ = torchaudio.load(file)
         
         if(self.data.shape[1] == 3):
             wav_duration = self.data[idx][2]
         else:
             wav_duration = -1
-
-        # upsample 8k -> 16k
-        # wav = self.upsample(wav).unsqueeze(dim=0) 
 
         # Mixup
         mixup_wav = torch.zeros(1)
@@ -106,36 +102,15 @@ class LIDDataset(Dataset):
         ######## Applying Mixup #########
         probability = 1.0
         if self.is_train:
-            current_class = self.datacsv.iloc[idx, 1]
-            # current_lang = self.datacsv.iloc[idx, 2]
-            # current_dia = self.datacsv.iloc[idx, 3]
             if random.random() <= probability:
-
-                if self.cluster == "across":
-                    mix_class = random.choice(list(self.classes_set - set(current_class)))
-                    mix_rows = self.datacsv.loc[self.datacsv['class'] == mix_class]["audiopath"].values
-                    mixup_file = random.choice(mix_rows)
-                    mixup_language = self.classes[mix_class]
-
-                elif self.cluster == "within":
-                    mix_class = current_class
-                    mix_rows = self.datacsv.loc[self.datacsv['class'] == mix_class]["audiopath"].values
-                    mixup_file = random.choice(mix_rows)
-                    mixup_language = self.classes[mix_class]
-
-                elif self.cluster == "random":
-                    # random mixing
-                    mixup_idx = random.randint(0, self.data.shape[0]-1)
-                    mixup_file = self.data[mixup_idx][0]
-                    mixup_language = self.classes[self.data[mixup_idx][1]]
-
-                # mixup_wav, _ = librosa.load(mixup_file, sr=8000)
-                # mixup_wav = torch.from_numpy(mixup_wav)
+                l = len(self.hard_samples)
+                i = random.randint(0, l-1)
+                mixup_sample = self.hard_samples.iloc[i]
+                mixup_file = mixup_sample['audiopath']
+                mix_class =  mixup_sample['class']
+                mixup_language = self.classes[mix_class]
 
                 mixup_wav, _ = torchaudio.load(mixup_file)
-
-                # mixup_wav = self.upsample(mixup_wav).unsqueeze(dim=0)
-
                 mixup_wav = self.train_transform(mixup_wav)
         ######## Done applying Mixup #########
             wav = self.train_transform(wav)
