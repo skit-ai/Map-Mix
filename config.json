@@ -8,18 +8,18 @@
         "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/mixup-latent_random-set-1-epoch=epoch=32.ckpt.ckpt"
     },
     "model_parameters": {
-        "batch_size": "8",
+        "batch_size": "24",
         "epochs": "50", 
         "lr": "1e-5",
         "model_type": "UpstreamTransformerXLSR",
         "upstream_model": "xlsr_300m",
         "_comment": "upstream model to be loaded from s3prl. Some of the upstream models are: wav2vec2, hubert, TERA, mockingjay",
         "feature_dim": "1024", 
-        "mixup_type": "latent-mixup-last",
+        "mixup_type": "static",
         "cluster": "random"
     },
     "gpu": "1",
-    "run_name": "mixup-latent_random-set-1",
+    "run_name": "mixup-static-set-1",
     "n_workers": "8"
 }
 
