@@ -4,8 +4,8 @@
         "train_path": "$dir/trainset3.csv",
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
-        "results_path": "/root/Langid/results/csv/datamap-hard-2.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/datamap-mixup-hard-set-2-epoch=epoch=30.ckpt.ckpt"
+        "results_path": "/root/Langid/results/csv/datamap-hard-3.csv",
+        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/datamap-mixup-hard-set-3-epoch=epoch=37.ckpt.ckpt"
     },
     "model_parameters": {
         "batch_size": "8",
