@@ -59,7 +59,7 @@ if __name__ == "__main__":
     ## Training DataLoader
     trainloader = data.DataLoader(
         train_set, 
-        batch_size=8, 
+        batch_size=hparams.batch_size, 
         shuffle=True, 
         num_workers=hparams.n_workers,
         collate_fn = collate_fn_mixup,
