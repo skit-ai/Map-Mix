@@ -41,19 +41,22 @@ class LIDDataset(Dataset):
     is_train=True,
     cluster = "across"
     ):
-        self.datamaps_df = pd.read_csv("/root/Langid/results/plots/datamaps-metrics-3.csv")
-        # print(self.datamaps_df.head())
-        self.easy_samples = self.datamaps_df[self.datamaps_df["confidence"]>0.65][self.datamaps_df["variability"]<0.3]
-        self.hard_samples = self.datamaps_df[self.datamaps_df["confidence"]<0.3][self.datamaps_df["variability"]<0.2]
+        
+        
+
         self.CSVPath = CSVPath
-        self.data = pd.read_csv(CSVPath).values
+
         if is_train:
-            self.datacsv = pd.read_csv(CSVPath)
-            self.datacsv['language'] = self.datacsv['class'].astype(str).str[:3]
-            self.datacsv['dialect'] = self.datacsv['class'].astype(str).str[4:]
-            self.classes_set = set(self.datacsv["class"].values)
-            self.lang_set = set(self.datacsv["language"].values)
-            self.dia_set = set(self.datacsv["dialect"].values)
+            self.datamaps_df = pd.read_csv("/root/Langid/results/plots/datamaps-metrics-2.csv")
+            # print(self.datamaps_df.head())
+            self.easy_samples = self.datamaps_df[self.datamaps_df["confidence"]>0.65][self.datamaps_df["variability"]<0.3]
+            self.hard_samples = self.datamaps_df[self.datamaps_df["confidence"]<0.3][self.datamaps_df["variability"]<0.2]
+            self.ambiguous_samples = self.datamaps_df[~self.datamaps_df.isin(self.easy_samples)].dropna()
+            self.ambiguous_samples = self.ambiguous_samples[~self.ambiguous_samples.isin(self.hard_samples)].dropna()
+            
+            self.data = self.ambiguous_samples.values
+        else:
+            self.data = pd.read_csv(CSVPath).values
 
         # print(self.classes_set)
         self.is_train = is_train
@@ -103,9 +106,9 @@ class LIDDataset(Dataset):
         probability = 1.0
         if self.is_train:
             if random.random() <= probability:
-                l = len(self.hard_samples)
+                l = len(self.easy_samples)
                 i = random.randint(0, l-1)
-                mixup_sample = self.hard_samples.iloc[i]
+                mixup_sample = self.easy_samples.iloc[i]
                 mixup_file = mixup_sample['audiopath']
                 mix_class =  mixup_sample['class']
                 mixup_language = self.classes[mix_class]

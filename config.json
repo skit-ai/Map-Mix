@@ -1,7 +1,7 @@
 {
     "dataDir": {
         "dir": "/root/LRE2017Dataset/LRE2017_16k",
-        "train_path": "$dir/trainset3.csv",
+        "train_path": "$dir/trainset2.csv",
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
         "results_path": "/root/Langid/results/csv/datamap-hard-3.csv",
@@ -19,7 +19,7 @@
         "cluster": "random"
     },
     "gpu": "1",
-    "run_name": "datamap-mixup-hard-set-1",
+    "run_name": "datamap-mixup-amb+easy-set-2",
     "n_workers": "8"
 }
 
