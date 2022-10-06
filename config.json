@@ -1,11 +1,11 @@
 {
     "dataDir": {
         "dir": "/root/LRE2017Dataset/LRE2017_16k",
-        "train_path": "$dir/trainset2.csv",
+        "train_path": "$dir/trainset3.csv",
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
-        "results_path": "/root/Langid/results/csv/datamap-hard-3.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/datamap-mixup-hard-set-3-epoch=epoch=37.ckpt.ckpt"
+        "results_path": "/root/Langid/results/csv/datamap-amb_easy-2.csv",
+        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/datamap-mixup-amb+easy-set-2-epoch=epoch=18.ckpt.ckpt"
     },
     "model_parameters": {
         "batch_size": "8",
@@ -19,7 +19,7 @@
         "cluster": "random"
     },
     "gpu": "1",
-    "run_name": "datamap-mixup-amb+easy-set-2",
+    "run_name": "datamap-mixup-amb+easy-set-3",
     "n_workers": "8"
 }
 
