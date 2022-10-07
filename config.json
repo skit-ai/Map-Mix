@@ -4,8 +4,8 @@
         "train_path": "$dir/trainset3.csv",
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
-        "results_path": "/root/Langid/results/csv/datamap-amb_easy-2.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/datamap-mixup-amb+easy-set-2-epoch=epoch=18.ckpt.ckpt"
+        "results_path": "/root/Langid/results/csv/datamap-amb_easy_conf-32.csv",
+        "model_checkpoint": "/root/Langid/LangID-LRE17/checkpoints/datamap-mixup-amb+easy-conf-set-3-loss-epoch=epoch=43.ckpt.ckpt"
     },
     "model_parameters": {
         "batch_size": "8",
@@ -19,7 +19,7 @@
         "cluster": "random"
     },
     "gpu": "1",
-    "run_name": "datamap-mixup-amb+easy-set-3",
+    "run_name": "datamap-mixup-amb+easy-conf-set-3",
     "n_workers": "8"
 }
 

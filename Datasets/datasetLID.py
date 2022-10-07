@@ -41,19 +41,19 @@ class LIDDataset(Dataset):
     is_train=True,
     cluster = "across"
     ):
-        
-        
 
         self.CSVPath = CSVPath
 
         if is_train:
-            self.datamaps_df = pd.read_csv("/root/Langid/results/plots/datamaps-metrics-2.csv")
+            self.datamaps_df = pd.read_csv("/root/Langid/results/plots/datamaps-metrics-3.csv")
             # print(self.datamaps_df.head())
-            self.easy_samples = self.datamaps_df[self.datamaps_df["confidence"]>0.65][self.datamaps_df["variability"]<0.3]
+            self.easy_samples = self.datamaps_df[self.datamaps_df["confidence"]>0.6]
+            # [self.datamaps_df["variability"]<0.3]
             self.hard_samples = self.datamaps_df[self.datamaps_df["confidence"]<0.3][self.datamaps_df["variability"]<0.2]
             self.ambiguous_samples = self.datamaps_df[~self.datamaps_df.isin(self.easy_samples)].dropna()
             self.ambiguous_samples = self.ambiguous_samples[~self.ambiguous_samples.isin(self.hard_samples)].dropna()
             
+            # print(len(self.datamaps_df), len(self.easy_samples), len(self.hard_samples), len(self.ambiguous_samples))
             self.data = self.ambiguous_samples.values
         else:
             self.data = pd.read_csv(CSVPath).values
@@ -61,21 +61,23 @@ class LIDDataset(Dataset):
         # print(self.classes_set)
         self.is_train = is_train
         self.classes = {
-            'ara-acm': torch.eye(14)[0], 
-            'ara-apc': torch.eye(14)[1], 
-            'ara-ary': torch.eye(14)[2], 
-            'ara-arz': torch.eye(14)[3], 
-            'eng-gbr': torch.eye(14)[4], 
-            'eng-usg': torch.eye(14)[5], 
-            'qsl-pol': torch.eye(14)[6], 
-            'qsl-rus': torch.eye(14)[7], 
-            'por-brz': torch.eye(14)[8], 
-            'spa-car': torch.eye(14)[9], 
-            'spa-eur': torch.eye(14)[10], 
-            'spa-lac': torch.eye(14)[11], 
-            'zho-cmn': torch.eye(14)[12], 
-            'zho-nan': torch.eye(14)[13]
+            'ara-acm': torch.tensor([0.75,0.13139856,0.06841516,0.05018629,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]), 
+            'ara-apc': torch.tensor([0.1090087,0.75,0.07234471,0.06864659,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]), 
+            'ara-ary': torch.tensor([0.08757757,0.08694835,0.75,0.07547408,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]), 
+            'ara-arz': torch.tensor([0.08027083,0.08976811,0.07996106,0.75,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]), 
+            'eng-gbr': torch.tensor([0.,0.,0.,0.,0.75,0.25,0.,0.,0.,0.,0.,0.,0.,0.]), 
+            'eng-usg': torch.tensor([0.,0.,0.,0.,0.25,0.75,0.,0.,0.,0.,0.,0.,0.,0.]), 
+            'qsl-pol': torch.tensor([0.,0.,0.,0.,0.,0.,0.75,0.25,0.,0.,0.,0.,0.,0.]), 
+            'qsl-rus': torch.tensor([0.,0.,0.,0.,0.,0.,0.25,0.75,0.,0.,0.,0.,0.,0.,]), 
+            'por-brz': torch.tensor([0.,0.,0.,0.,0.,0.,0.,0.,0.75,0.08348278,0.08137903,0.08513819,0.,0.]), 
+            'spa-car': torch.tensor([0.,0.,0.,0.,0.,0.,0.,0.,0.03007011,0.75,0.06198897,0.15794092,0.,0.]), 
+            'spa-eur': torch.tensor([0.,0.,0.,0.,0.,0.,0.,0.,0.07484129,0.08263538,0.75,0.09252334,0.,0.]), 
+            'spa-lac': torch.tensor([0.,0.,0.,0.,0.,0.,0.,0.,0.05206356,0.10113815,0.09679829,0.75,0.,0.,]), 
+            'zho-cmn': torch.tensor([0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.75,0.25]), 
+            'zho-nan': torch.tensor([0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.25,0.75])
             }
+
+
         self.lang2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
         self.train_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*8, pad_position='random', crop_position='random')
         self.test_transform = wavencoder.transforms.PadCrop(pad_crop_length=16000*20, pad_position='left', crop_position='center')
@@ -136,3 +138,8 @@ if __name__ == "__main__":
         is_train=True,)
     _ = dataset[0]
         
+
+# 25222 4681 773 19768
+# 25222 6885 773 17564
+# 24777 7662 814 16301
+# 24757 7741 710 16306
