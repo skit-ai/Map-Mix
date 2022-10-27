@@ -47,8 +47,7 @@ class LIDDataset(Dataset):
         if is_train:
             self.datamaps_df = pd.read_csv("/root/Langid/results/plots/datamaps-metrics-3.csv")
             # print(self.datamaps_df.head())
-            self.easy_samples = self.datamaps_df[self.datamaps_df["confidence"]>0.6]
-            # [self.datamaps_df["variability"]<0.3]
+            self.easy_samples = self.datamaps_df[self.datamaps_df["confidence"]>0.6][self.datamaps_df["variability"]<0.3]
             self.hard_samples = self.datamaps_df[self.datamaps_df["confidence"]<0.3][self.datamaps_df["variability"]<0.2]
             self.ambiguous_samples = self.datamaps_df[~self.datamaps_df.isin(self.easy_samples)].dropna()
             self.ambiguous_samples = self.ambiguous_samples[~self.ambiguous_samples.isin(self.hard_samples)].dropna()

@@ -28,7 +28,7 @@ class LIDConfig(object):
     # For wav2vec2, feature_dim = 768
     # For npc, feature_dim = 512
     # For tera, feature_dim = 768
-    feature_dim = int(config['model_parameters']['feature_dim'])
+    # feature_dim = int(config['model_parameters']['feature_dim'])
 
     # No of GPUs for training and no of workers for datalaoders
     gpu = int(config['gpu'])
@@ -44,3 +44,4 @@ class LIDConfig(object):
     cluster = config['model_parameters']['cluster']
 
     run_name = config['run_name']
+    feature_dim = 1024

@@ -78,9 +78,9 @@ def ECEMetric(y, y_softmax_scores):
     return ece.measure(y_softmax_scores, y)
 
 
-set_1 = pd.read_csv('/root/Langid/results/csv/datamap-amb_easy_conf-31.csv')
-set_2 = pd.read_csv('/root/Langid/results/csv/datamap-amb_easy_conf-32.csv')
-set_3 = pd.read_csv('/root/Langid/results/csv/datamap-amb_easy_conf-32.csv')
+set_1 = pd.read_csv('/root/Langid/results/csv/hubert-1.csv')
+set_2 = pd.read_csv('/root/Langid/results/csv/hubert-2.csv')
+set_3 = pd.read_csv('/root/Langid/results/csv/hubert-3.csv')
 
 label2num = {'ara-acm': 0, 'ara-apc': 1, 'ara-ary': 2, 'ara-arz': 3, 'eng-gbr': 4, 'eng-usg': 5, 'qsl-pol': 6, 'qsl-rus': 7, 'por-brz': 8, 'spa-car': 9, 'spa-eur': 10, 'spa-lac': 11, 'zho-cmn': 12, 'zho-nan': 13}
 num2cluster = {0:1, 1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:4, 10:4, 11:4, 12:5, 13:5}
@@ -107,7 +107,7 @@ def get_cluster_wise(df):
             if label2num[df.loc[k, 'class']] in clusters[i][1]:
                 true.append(df.loc[k,'class'])
                 predicted.append(df.loc[k, 'prediction'])
-        scores.append(accuracy_score(true, predicted))
+        scores.append(f1_score(true, predicted, average='weighted'))
     return scores
 
 
@@ -152,9 +152,9 @@ def metrics(df):
     f1 = f1_score(list(df['class']), list(df['prediction']), average='weighted')
     cluster_acc = cluster_accuracy(df)
     ece = get_ece(df)
-    lang_3 = accuracy_score(language_true_3, language_pred_3)
-    lang_10 = accuracy_score(language_true_10, language_pred_10)
-    lang_30 = accuracy_score(language_true_30, language_pred_30)
+    lang_3 = f1_score(language_true_3, language_pred_3, average='weighted')
+    lang_10 = f1_score(language_true_10, language_pred_10, average='weighted')
+    lang_30 = f1_score(language_true_30, language_pred_30, average='weighted')
     cluster_wise_scores = get_cluster_wise(df)
     # eer = EER()
     print(f"Accuracy: {acc}")

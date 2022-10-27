@@ -44,7 +44,7 @@ class LightningModel(pl.LightningModule):
     def __init__(self, HPARAMS):
         super().__init__()
         # HPARAMS
-        self.save_hyperparameters()
+        # self.save_hyperparameters()
 
         self.processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
         self.encoder = Wav2Vec2Model.from_pretrained("facebook/wav2vec2-xls-r-300m")
