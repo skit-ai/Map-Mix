@@ -59,29 +59,16 @@ class LIDDataset(Dataset):
             file = file[:-4]
         language = self.classes[self.data[idx][1]]
 
-        # wav, _ = librosa.load(file)
         wav, _ = torchaudio.load(file)
-        # wav = torch.from_numpy(wav)
         
         if(self.data.shape[1] == 3):
             wav_duration = self.data[idx][2]
         else:
             wav_duration = -1
 
-        # upsample 8k -> 16k
-        # wav = self.upsample(wav).unsqueeze(dim=0) 
-        # wav = wav.unsqueeze(dim=0)
 
         if(self.is_train):
             wav = self.train_transform(wav)
-
-            if random.random()>0.5:
-            # Time Mask
-                l = wav.shape[-1]
-                window = random.choice([16000, 2*16000, 3*16000, 4*16000])
-                t = int(np.random.uniform(low=0, high=l-window))
-                wav[:,  t: t+window] = 0
-
         else:
             wav = self.test_transform(wav)
         return wav, torch.FloatTensor([wav_duration]), language
