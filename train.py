@@ -134,13 +134,9 @@ if __name__ == "__main__":
             # lr_monitor,
         ],
         logger=logger,
-        # resume_from_checkpoint=hparams.model_checkpoint,
-        # distributed_backend='ddp'
         )
 
     trainer.fit(model, train_dataloader=trainloader)
-
-    # print('\n\nCompleted Training...\nTesting the model with checkpoint -', model_checkpoint_callback.best_model_path)
 
     df = pd.read_csv(train_set.CSVPath).reset_index(drop=True)
     embed_datamaps_into_dataframe(df, metrics)
