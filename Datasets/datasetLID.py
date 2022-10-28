@@ -117,7 +117,6 @@ class LIDDataset(Dataset):
                 mixup_wav = self.train_transform(mixup_wav)
         ######## Done applying Mixup #########
             wav = self.train_transform(wav)
-            if random.random()>0.5:
             return wav, mixup_wav, language, mixup_language, torch.FloatTensor([wav_duration]), file
         else:
             wav = self.test_transform(wav)
