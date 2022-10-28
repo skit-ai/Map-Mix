@@ -49,7 +49,6 @@ def convert_to_labels(num):
 trues=[]
 preds = []
 
-
 for index, row in tqdm(test_df.iterrows()):
     file_path = row["audiopath"]
     true_label = row["class"]
@@ -69,7 +68,6 @@ for index, row in tqdm(test_df.iterrows()):
     probs = F.softmax(y_hat_l, dim=1).detach().cpu().mean(0).view(1, 14)
     y_hat_l = probs.argmax(dim=1).detach().cpu().numpy().astype(int)
     probs = probs.numpy().astype(float).tolist()
-    # print(y_hat_l)
 
     predictions = list(map(convert_to_labels, y_hat_l))
     ground_truths = [true_label]

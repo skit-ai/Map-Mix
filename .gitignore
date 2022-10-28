@@ -7,3 +7,4 @@ tmp/
 *.ipynb
 dataprocess/
 config_backup.json
+paper_results/

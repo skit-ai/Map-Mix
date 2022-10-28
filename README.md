@@ -1,9 +1,1 @@
-# LangID-LRE2017
-
-## Results
-| **Methods** | **Accuracy** | **Weighted F1** | **Cluster Accuracy** | **ECE** |
-|-------------|--------------|-----------------|----------------------|---------|
-|             |              |                 |                      |         |
-|             |              |                 |                      |         |
-|             |              |                 |                      |         |
-|             |              |                 |                      |         |
+# Map-Mix Pretrained Baselines 

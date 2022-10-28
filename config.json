@@ -5,11 +5,11 @@
         "test_path": "$dir/testset1.csv",
         "val_path": "$dir/valset1.csv",
         "results_path": "/root/Langid/LangID-LRE17/results/csv/xlsr-3.csv",
-        "model_checkpoint": "/root/Langid/LangID-LRE17/results/checkpoints/xlsr-3.ckpt"
+        "model_checkpoint": ""
     },
     "model_parameters": {
-        "batch_size": "64",
-        "epochs": "35",
+        "batch_size": "16",
+        "epochs": "50",
         "lr": "1e-5",
         "model_type": "UpstreamTransformerXLSR",
         "upstream_model": "xlsr_300m",

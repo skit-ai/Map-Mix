@@ -121,7 +121,10 @@ def get_ece(df):
     return ECEMetric(y_true, probs)
 
 
+
+
 def metrics(df):
+    # print(df.head())
     language_true_3 = []
     language_pred_3 = []
     language_softmax_3 = []

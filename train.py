@@ -72,14 +72,12 @@ if __name__ == "__main__":
     valloader = data.DataLoader(
         valid_set, 
         batch_size=hparams.batch_size,
-        # hparams.batch_size, 
         shuffle=False, 
         num_workers=hparams.n_workers,
         collate_fn = collate_fn,
     )
 
     print('Dataset Split (Train, Validation, Test)=', len(train_set), len(valid_set))
-
     logger = WandbLogger(
         name=LIDConfig.run_name,
         project='LangID'
@@ -114,8 +112,6 @@ if __name__ == "__main__":
             lr_monitor,
         ],
         logger=logger,
-        # resume_from_checkpoint=hparams.model_checkpoint,
-        # distributed_backend='ddp'
         )
 
     trainer.fit(model, train_dataloader=trainloader, val_dataloaders=valloader)
