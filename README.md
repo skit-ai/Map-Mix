@@ -1,4 +1,2 @@
-# LangID-LRE2017
+# Map-Mix Datamaps Mixup 
 
-## Datamaps
-![](plots/datamaps.png)
