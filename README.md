@@ -32,9 +32,10 @@ The pre-trained multi-lingual XLSR model generalizes well for language identific
 Each baseline methods mentioned in the paper(ie: pretrained-baselines, mixup-baselines, datamap-mixup, map-mix) are added to different branches of this repository.
 
 - [Pretrained Baselines(wav2vec2, Hubert, XLSR)](https://github.com/skit-ai/Map-Mix/tree/baselines)
-- [Mixup Baselines(static, latent-random, latent-within, latent-across)]()
-- [Datamap Mixup (easy mixup, hard mixup, amb+easy mixup)]()
-- [Map-Mix]()
+- [Mixup Baselines(static, latent-random, latent-within, latent-across)](https://github.com/skit-ai/Map-Mix/tree/mixup)
+- [Generation of Datamaps](https://github.com/skit-ai/Map-Mix/tree/datamaps)
+- [Datamap Mixup (easy mixup, hard mixup, amb+easy mixup)](https://github.com/skit-ai/Map-Mix/tree/datamaps_mixup)
+- [Map-Mix](https://github.com/skit-ai/Map-Mix/tree/datamaps_conf_label)
 
 Download the [LRE-2017 Dataset](https://www.nist.gov/system/files/documents/2017/09/29/lre17_eval_plan-2017-09-29_v1.pdf) and update the dataset path in config.json file.
 
