@@ -1,4 +1,1 @@
-# LangID-LRE2017
-
-## Datamaps
-![](plots/datamaps.png)
+# Map-Mix Mixup Baselines
