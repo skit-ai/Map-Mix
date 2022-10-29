@@ -1,6 +1,6 @@
 # Map-Mix
 
-The official implementation of the method discussed in the paper **Improving Spoken Language Identification with Map-Mix**. 
+The official implementation of the method discussed in the paper **Improving Spoken Language Identification with Map-Mix**(submitted to ICASSP 2023). 
 
 
 
