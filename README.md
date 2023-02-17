@@ -1,6 +1,6 @@
 # Map-Mix
 
-The official implementation of the method discussed in the paper **Improving Spoken Language Identification with Map-Mix**(submitted to ICASSP 2023). 
+The official implementation of the method discussed in the paper [**Improving Spoken Language Identification with Map-Mix**](https://arxiv.org/abs/2302.08229)(accepted at ICASSP 2023). 
 
 
 
@@ -78,7 +78,18 @@ python test_metrics.py
 ## Licence
 Nil
 ## Citation
-Nil
+```
+@misc{https://doi.org/10.48550/arxiv.2302.08229,
+  doi = {10.48550/ARXIV.2302.08229},
+  url = {https://arxiv.org/abs/2302.08229},
+  author = {Rajaa, Shangeth and Anandan, Kriti and Dalmia, Swaraj and Gupta, Tarun and Chng, Eng Siong},
+  keywords = {Machine Learning (cs.LG), Computation and Language (cs.CL), FOS: Computer and information sciences, FOS: Computer and information sciences},
+  title = {Improving Spoken Language Identification with Map-Mix},
+  publisher = {arXiv},
+  year = {2023},
+  copyright = {arXiv.org perpetual, non-exclusive license}
+}
+```
 
 ## References
 1. [mixup: Beyond Empirical Risk Minimization](https://arxiv.org/abs/1710.09412)
